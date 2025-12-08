@@ -409,14 +409,29 @@ class MapApp {
     }
 
     onMouseClick(event) {
-        if (this.currentHovered) {
-            const data = this.currentHovered.userData;
+        // Calculate mouse position for click event specifically
+        const mouse = new THREE.Vector2();
+        // Use changedTouches if available (touch event), else clientX/Y
+        const clientX = event.changedTouches ? event.changedTouches[0].clientX : event.clientX;
+        const clientY = event.changedTouches ? event.changedTouches[0].clientY : event.clientY;
+
+        mouse.x = (clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+        // Perform Raycast
+        this.raycaster.setFromCamera(mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects(this.objects);
+
+        if (intersects.length > 0) {
+            const object = intersects[0].object;
+            const data = object.userData;
+
             // Only open panel if we have data for this region
             if (data.id && data.id !== "other") {
                 this.openPanel(data.id, data.name);
 
                 // --- ZOOM TO ISLAND LOGIC ---
-                const mesh = this.currentHovered;
+                const mesh = object;
 
                 // Calculate center of the mesh in World Coordinates
                 if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
