@@ -147,7 +147,12 @@ class MapApp {
         this.scene.fog = new THREE.FogExp2(0x0A0F1F, 0.02);
 
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 10, 20);
+
+        // Responsive Camera Position
+        const isMobile = window.innerWidth < 768;
+        const initialZ = isMobile ? 35 : 20; // Move further back on mobile to see the wide map
+        this.camera.position.set(0, 10, initialZ);
+
         this.camera.lookAt(0, 0, 0);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

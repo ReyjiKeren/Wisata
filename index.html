@@ -49,26 +49,57 @@
                 ExploreNusantara</h1>
         </div>
 
+        <!-- Desktop Nav -->
         <nav class="hidden md:flex gap-8">
             <a href="#"
                 class="nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors">Beranda</a>
             <a href="#"
-                class="nav-link text-sm uppercase tracking-wider text-white border-b-2 border-brand-cyan pb-1">Destinasi</a>
+                class="nav-link text-sm uppercase tracking-wider text-white border-b-2 border-brand-cyan pb-1 transition-all">Destinasi</a>
             <a href="#"
                 class="nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors">Budaya</a>
             <a href="#"
                 class="nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors">Tentang</a>
         </nav>
 
-        <button class="relative group p-2">
-            <div
-                class="w-10 h-5 bg-gray-800 rounded-full flex items-center px-1 group-hover:bg-gray-700 transition-colors">
+        <div class="flex items-center gap-4">
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-white p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <button class="relative group p-2 hidden md:block">
                 <div
-                    class="w-3 h-3 bg-brand-cyan rounded-full shadow-[0_0_8px_#16C6FF] transform translate-x-5 transition-transform">
+                    class="w-10 h-5 bg-gray-800 rounded-full flex items-center px-1 group-hover:bg-gray-700 transition-colors">
+                    <div
+                        class="w-3 h-3 bg-brand-cyan rounded-full shadow-[0_0_8px_#16C6FF] transform translate-x-5 transition-transform">
+                    </div>
                 </div>
-            </div>
-        </button>
+            </button>
+        </div>
     </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu"
+        class="fixed inset-0 z-[65] bg-brand-navy/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 md:hidden flex flex-col justify-center items-center gap-8">
+        <a href="#"
+            class="mobile-nav-link text-2xl font-bold uppercase tracking-widest text-white hover:text-brand-cyan transition-colors">Beranda</a>
+        <a href="#"
+            class="mobile-nav-link text-2xl font-bold uppercase tracking-widest text-white hover:text-brand-cyan transition-colors">Destinasi</a>
+        <a href="#"
+            class="mobile-nav-link text-2xl font-bold uppercase tracking-widest text-white hover:text-brand-cyan transition-colors">Budaya</a>
+        <a href="#"
+            class="mobile-nav-link text-2xl font-bold uppercase tracking-widest text-white hover:text-brand-cyan transition-colors">Tentang</a>
+
+        <button id="close-mobile-menu" class="absolute top-6 right-6 p-2 text-white/50 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
 
     <!-- Home / Beranda Section (Hero Overlay) -->
     <section id="home-section"
