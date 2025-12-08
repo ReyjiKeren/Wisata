@@ -200,16 +200,19 @@ class MapApp {
         const aspect = window.innerWidth / window.innerHeight;
 
         // Calculate needed Distance to fit width
-        const vFOV = THREE.Math.degToRad(this.camera.fov);
+        // Use THREE.MathUtils instead of THREE.Math for compatibility
+        const vFOV = THREE.MathUtils.degToRad(this.camera.fov);
         let dist = targetWidth / (2 * Math.tan(vFOV / 2) * aspect);
 
         // Clamp distance
         dist = Math.max(20, Math.min(dist, 140));
 
-        this.camera.position.set(0, 10, dist);
-        if (this.controls) {
-            this.controls.maxDistance = dist * 1.5;
-            this.controls.update();
+        if (isFinite(dist)) {
+            this.camera.position.set(0, 10, dist);
+            if (this.controls) {
+                this.controls.maxDistance = dist * 1.5;
+                this.controls.update();
+            }
         }
     }
 
