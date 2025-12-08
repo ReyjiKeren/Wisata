@@ -147,12 +147,6 @@ class MapApp {
         this.scene.fog = new THREE.FogExp2(0x0A0F1F, 0.02);
 
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-        // Responsive Camera Position
-        const isMobile = window.innerWidth < 768;
-        const initialZ = isMobile ? 35 : 20; // Move further back on mobile to see the wide map
-        this.camera.position.set(0, 10, initialZ);
-
         this.camera.lookAt(0, 0, 0);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -164,8 +158,11 @@ class MapApp {
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.minDistance = 5;
-        this.controls.maxDistance = 60;
+        this.controls.maxDistance = 150;
         this.controls.maxPolarAngle = Math.PI / 2 - 0.1;
+
+        // Initial Camera Fit
+        this.adjustCameraPosition();
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
@@ -195,6 +192,25 @@ class MapApp {
         this.setupUIEvents();
 
         this.animate();
+    }
+
+    adjustCameraPosition() {
+        // Heuristic: Fit ~55 units width into view
+        const targetWidth = 55;
+        const aspect = window.innerWidth / window.innerHeight;
+
+        // Calculate needed Distance to fit width
+        const vFOV = THREE.Math.degToRad(this.camera.fov);
+        let dist = targetWidth / (2 * Math.tan(vFOV / 2) * aspect);
+
+        // Clamp distance
+        dist = Math.max(20, Math.min(dist, 140));
+
+        this.camera.position.set(0, 10, dist);
+        if (this.controls) {
+            this.controls.maxDistance = dist * 1.5;
+            this.controls.update();
+        }
     }
 
     setupUIEvents() {
@@ -488,6 +504,7 @@ class MapApp {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.adjustCameraPosition();
     }
 
     animate() {
