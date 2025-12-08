@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExploreNusantara | Peta Futuristik</title>
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cyan: '#16C6FF',
+                            navy: '#0A0F1F',
+                            dark: '#050810'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="src/css/style.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body
+    class="bg-brand-navy text-white overflow-hidden h-screen w-screen selection:bg-brand-cyan selection:text-brand-navy">
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 left-0 w-full z-[70] glass-panel border-b border-brand-cyan/20 px-8 py-4 flex justify-between items-center transition-all duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-brand-cyan/20 flex items-center justify-center animate-pulse-slow">
+                <div class="w-2 h-2 rounded-full bg-brand-cyan shadow-[0_0_10px_#16C6FF]"></div>
+            </div>
+            <h1
+                class="text-xl font-bold tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white">
+                ExploreNusantara</h1>
+        </div>
+
+        <nav class="hidden md:flex gap-8">
+            <a href="#"
+                class="nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors">Beranda</a>
+            <a href="#"
+                class="nav-link text-sm uppercase tracking-wider text-white border-b-2 border-brand-cyan pb-1">Destinasi</a>
+            <a href="#"
+                class="nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors">Budaya</a>
+            <a href="#"
+                class="nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors">Tentang</a>
+        </nav>
+
+        <button class="relative group p-2">
+            <div
+                class="w-10 h-5 bg-gray-800 rounded-full flex items-center px-1 group-hover:bg-gray-700 transition-colors">
+                <div
+                    class="w-3 h-3 bg-brand-cyan rounded-full shadow-[0_0_8px_#16C6FF] transform translate-x-5 transition-transform">
+                </div>
+            </div>
+        </button>
+    </header>
+
+    <!-- Home / Beranda Section (Hero Overlay) -->
+    <section id="home-section"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-brand-navy transition-transform duration-700 ease-in-out">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1516690561799-46d8f74f9abf?q=80&w=1920"
+                alt="Beautiful Indonesia" class="w-full h-full object-cover opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/60 to-transparent"></div>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-[-5vh]">
+            <div
+                class="inline-block mb-4 px-4 py-1.5 rounded-full border border-brand-cyan/30 bg-brand-cyan/10 backdrop-blur-md">
+                <span class="text-brand-cyan text-xs font-bold tracking-[0.2em] uppercase">✨ Hidden Gem Hunter</span>
+            </div>
+
+            <h1
+                class="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight drop-shadow-[0_0_30px_rgba(22,198,255,0.3)]">
+                EXPLORE <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white">NUSANTARA</span>
+            </h1>
+
+            <p class="text-gray-300 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto font-light">
+                Mau <b>healing</b> tapi bingung kemana? Gak usah jauh-jauh! Indonesia itu luas,
+                <i>aesthetic</i>, dan pastinya bikin feed lu makin <b>kece badai</b>.
+                Skuy jelajahi keindahan lokal rasa internasional!
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                <button id="btn-start-explore"
+                    class="group relative px-8 py-4 bg-brand-cyan text-brand-navy font-bold text-lg rounded-full overflow-hidden hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(22,198,255,0.4)]">
+                    <span class="relative z-10 flex items-center gap-2">
+                        GAS JELAJAHI 🚀
+                    </span>
+                    <div
+                        class="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500">
+                    </div>
+                </button>
+
+                <button
+                    class="px-8 py-4 border border-white/20 hover:bg-white/5 rounded-full text-white font-medium transition-colors backdrop-blur-sm">
+                    LIHAT GALERI 📸
+                </button>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div
+            class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-70">
+            <span class="text-[10px] tracking-widest text-brand-cyan uppercase">Scroll for Vibes</span>
+            <div class="w-px h-12 bg-gradient-to-b from-brand-cyan to-transparent"></div>
+        </div>
+    </section>
+
+    <!-- Culture / Budaya Section -->
+    <section id="culture-section"
+        class="fixed inset-0 z-[60] bg-brand-navy transform translate-y-full transition-transform duration-700 ease-in-out flex flex-col pt-24 px-4 md:px-12 overflow-y-auto custom-scrollbar">
+
+        <div class="text-center mb-12">
+            <h2
+                class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white mb-4">
+                DIGITAL HERITAGE
+            </h2>
+            <p class="text-gray-400 max-w-2xl mx-auto">
+                Warisan leluhur yang tak lekang oleh waktu, kini abadi dalam dimensi digital.
+                Kenali jati diri bangsa lewat kacamata masa depan.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-12 max-w-7xl mx-auto w-full">
+            <!-- Card 1 -->
+            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1572978252266-9a571ae65064?q=80&w=800" alt="Wayang"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/40 to-transparent"></div>
+                <div
+                    class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <span class="text-brand-cyan text-xs font-bold tracking-widest uppercase mb-2 block">Shadow
+                        Arts</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">Wayang Kulit</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        Mahakarya seni bercerita yang diakui UNESCO. Bayangan yang menghidupkan epik Mahabharata &
+                        Ramayana.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1627916599371-d85c8e310065?q=80&w=800" alt="Batik"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/40 to-transparent"></div>
+                <div
+                    class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <span class="text-brand-cyan text-xs font-bold tracking-widest uppercase mb-2 block">Textile</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">Batik Nusantara</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        Goresan canting yang penuh filosofi. Setiap motif menyimpan doa dan sejarah yang mendalam.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1533136270425-950c0dd9bc40?q=80&w=800" alt="Tari Kecak"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/40 to-transparent"></div>
+                <div
+                    class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <span
+                        class="text-brand-cyan text-xs font-bold tracking-widest uppercase mb-2 block">Performance</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">Tari Kecak</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        Ritual mistis tanpa alat musik, hanya paduan suara manusia yang menggetarkan jiwa di tebing
+                        Uluwatu.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+                <img src="https://images.unsplash.com/photo-1563721345970-12869811fa16?q=80&w=800" alt="Rumah Adat"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/40 to-transparent"></div>
+                <div
+                    class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <span
+                        class="text-brand-cyan text-xs font-bold tracking-widest uppercase mb-2 block">Architecture</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">Rumah Gadang</h3>
+                    <p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        Atap gonjong yang menjulang ke langit, simbol kejayaan dan persatuan masyarakat Minangkabau.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main 3D Canvas -->
+    <div id="canvas-container" class="absolute inset-0 w-full h-full z-0 opacity-0 transition-opacity duration-1000">
+        <!-- Canvas injected by Three.js -->
+    </div>
+
+    <!-- UI Overlay Controls (Hidden initially) -->
+    <div id="map-ui-controls"
+        class="fixed bottom-8 left-8 z-40 flex flex-col gap-4 translate-y-20 opacity-0 transition-all duration-500">
+        <div class="glass-panel p-2 rounded-xl flex flex-col gap-2 border border-brand-cyan/20 backdrop-blur-md">
+            <button id="zoom-in"
+                class="p-3 hover:bg-brand-cyan/20 rounded-lg text-brand-cyan transition-all hover:scale-110 active:scale-95"
+                title="Perbesar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+            <button id="zoom-out"
+                class="p-3 hover:bg-brand-cyan/20 rounded-lg text-brand-cyan transition-all hover:scale-110 active:scale-95"
+                title="Perkecil">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+            </button>
+            <div class="h-px bg-brand-cyan/20"></div>
+            <button id="reset-cam"
+                class="p-3 hover:bg-brand-cyan/20 rounded-lg text-brand-cyan transition-all hover:scale-110 active:scale-95"
+                title="Reset Kamera">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Tooltip -->
+    <div id="map-tooltip" class="fixed pointer-events-none z-50 opacity-0 transition-opacity duration-300">
+        <div
+            class="glass-panel px-4 py-2 rounded-lg border border-brand-cyan/30 bg-brand-navy/80 backdrop-blur-md shadow-[0_0_20px_rgba(22,198,255,0.2)] transform translate-y-4">
+            <p id="tooltip-title" class="text-brand-cyan font-bold tracking-wider text-sm">NAMA PULAU</p>
+        </div>
+    </div>
+
+    <!-- Side Panel -->
+    <aside id="side-panel"
+        class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-brand-navy/90 backdrop-blur-xl z-50 transform translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] border-l border-brand-cyan/20 flex flex-col">
+        <!-- Panel Header -->
+        <div class="relative h-64 w-full overflow-hidden shrink-0">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-brand-navy z-10"></div>
+            <img id="panel-image" src="" alt="Destination" class="w-full h-full object-cover">
+            <button id="close-panel"
+                class="absolute top-6 right-6 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-brand-cyan hover:text-brand-navy transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="absolute bottom-6 left-8 z-20">
+                <h2 id="panel-title" class="text-4xl font-bold text-white mb-1 drop-shadow-lg">Nama Pulau</h2>
+                <div class="h-1 w-20 bg-brand-cyan shadow-[0_0_10px_#16C6FF]"></div>
+            </div>
+        </div>
+
+        <!-- Panel Content -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div class="prose prose-invert max-w-none">
+                <p id="panel-desc" class="text-gray-300 leading-relaxed mb-8">Deskripsi akan muncul di sini...</p>
+
+                <h3 class="text-brand-cyan text-sm uppercase tracking-widest font-bold mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-brand-cyan"></span> Destinasi Unggulan
+                </h3>
+
+                <div id="destinations-list" class="space-y-4">
+                    <!-- Dynamic Destination Cards -->
+                </div>
+            </div>
+
+            <button
+                class="w-full mt-8 py-4 bg-transparent border border-brand-cyan text-brand-cyan font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-navy transition-all duration-300 rounded-lg group overflow-hidden relative">
+                <span class="relative z-10">Lihat Detail Lengkap</span>
+                <div
+                    class="absolute inset-0 bg-brand-cyan transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 -z-0">
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Scripts -->
+    <!-- D3.js (for GeoJSON projection) -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- App Logic -->
+    <!-- Three.js (Global) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="src/js/map.js"></script>
+
+    <!-- UI Logic Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const homeSection = document.getElementById('home-section');
+            const cultureSection = document.getElementById('culture-section');
+            const canvasContainer = document.getElementById('canvas-container');
+            const mapUiControls = document.getElementById('map-ui-controls');
+            const btnStartExplore = document.getElementById('btn-start-explore');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            function showMap() {
+                // Hide Home & Culture
+                homeSection.classList.add('-translate-y-full');
+                if (cultureSection) cultureSection.classList.add('translate-y-full');
+
+                // Show Map
+                canvasContainer.classList.remove('opacity-0');
+                mapUiControls.classList.remove('translate-y-20', 'opacity-0');
+            }
+
+            function showHome() {
+                // Show Home
+                homeSection.classList.remove('-translate-y-full');
+
+                // Hide Culture & Map
+                if (cultureSection) cultureSection.classList.add('translate-y-full');
+                canvasContainer.classList.add('opacity-0');
+                mapUiControls.classList.add('translate-y-20', 'opacity-0');
+            }
+
+            function showCulture() {
+                // Hide Home
+                homeSection.classList.add('-translate-y-full');
+
+                // Show Culture
+                if (cultureSection) cultureSection.classList.remove('translate-y-full');
+
+                // Hide Map
+                canvasContainer.classList.add('opacity-0');
+                mapUiControls.classList.add('translate-y-20', 'opacity-0');
+            }
+
+            // Navigation Highlight Logic
+            function updateNavHighlight(activeText) {
+                navLinks.forEach(link => {
+                    const text = link.innerText.toUpperCase();
+                    if (text === activeText) {
+                        link.className = 'nav-link text-sm uppercase tracking-wider text-white border-b-2 border-brand-cyan pb-1 transition-all';
+                    } else {
+                        link.className = 'nav-link text-sm uppercase tracking-wider text-gray-400 hover:text-brand-cyan transition-colors';
+                    }
+                });
+            }
+
+            // Event Listeners
+            if (btnStartExplore) {
+                btnStartExplore.addEventListener('click', () => {
+                    showMap();
+                    updateNavHighlight('DESTINASI');
+                });
+            }
+
+            const btnBackCulture = document.getElementById('btn-back-culture');
+            if (btnBackCulture) {
+                btnBackCulture.addEventListener('click', () => {
+                    showHome();
+                    updateNavHighlight('BERANDA');
+                });
+            }
+
+            // Nav Links Logic
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const text = link.innerText.toUpperCase();
+
+                    if (text === 'BERANDA') {
+                        showHome();
+                        updateNavHighlight('BERANDA');
+                    } else if (text === 'DESTINASI') {
+                        showMap();
+                        updateNavHighlight('DESTINASI');
+                    } else if (text === 'BUDAYA') {
+                        showCulture();
+                        updateNavHighlight('BUDAYA');
+                    }
+                });
+            });
+
+            // Initial Highlight
+            updateNavHighlight('BERANDA');
+        });
+    </script>
+</body>
+
+</html>

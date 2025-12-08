@@ -1,0 +1,191 @@
+[
+    {
+        "id": "sumatra",
+        "name": "Sumatra",
+        "color": "#16C6FF",
+        "position": {
+            "x": -6,
+            "y": 1,
+            "z": 0
+        },
+        "scale": {
+            "x": 1.5,
+            "y": 3.5,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": -0.5
+        },
+        "description": "The wild west of Indonesia, home to orangutans, volcanoes, and the massive Lake Toba supervolcano."
+    },
+    {
+        "id": "java",
+        "name": "Java",
+        "color": "#16C6FF",
+        "position": {
+            "x": -1.5,
+            "y": -2,
+            "z": 0
+        },
+        "scale": {
+            "x": 2.5,
+            "y": 0.8,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": -0.1
+        },
+        "description": "The heart of the archipelago, bustling with culture, history, ancient temples like Borobudur, and vibrant cities."
+    },
+    {
+        "id": "kalimantan",
+        "name": "Kalimantan",
+        "color": "#16C6FF",
+        "position": {
+            "x": 0,
+            "y": 2,
+            "z": -1
+        },
+        "scale": {
+            "x": 2,
+            "y": 2,
+            "z": 1.5
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "description": "Ancient rainforests, diverse wildlife including orangutans, and river adventures."
+    },
+    {
+        "id": "sulawesi",
+        "name": "Sulawesi",
+        "color": "#16C6FF",
+        "position": {
+            "x": 3,
+            "y": 1,
+            "z": 0
+        },
+        "scale": {
+            "x": 1,
+            "y": 2.5,
+            "z": 1
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0.2
+        },
+        "description": "Unique k-shaped island known for its rich marine life, diving spots, and highland cultures."
+    },
+    {
+        "id": "bali",
+        "name": "Bali",
+        "color": "#FFC616",
+        "position": {
+            "x": 0.2,
+            "y": -2.5,
+            "z": 0.5
+        },
+        "scale": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "description": "The Island of Gods, world-famous for its beaches, temples, nightlife, and arts."
+    },
+    {
+        "id": "lombok",
+        "name": "Lombok",
+        "color": "#16C6FF",
+        "position": {
+            "x": 1,
+            "y": -2.6,
+            "z": 0.5
+        },
+        "scale": {
+            "x": 0.45,
+            "y": 0.45,
+            "z": 0.45
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "description": "Bali's quieter neighbor, known for Mount Rinjani, waterfalls, and the Gili Islands."
+    },
+    {
+        "id": "flores",
+        "name": "Flores",
+        "color": "#16C6FF",
+        "position": {
+            "x": 2.5,
+            "y": -3,
+            "z": 0.5
+        },
+        "scale": {
+            "x": 1.2,
+            "y": 0.4,
+            "z": 0.4
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": -0.2
+        },
+        "description": "Home to the Kelimutu tricolored lakes and gateway to the Komodo National Park."
+    },
+    {
+        "id": "maluku",
+        "name": "Maluku",
+        "color": "#16C6FF",
+        "position": {
+            "x": 5,
+            "y": 0,
+            "z": -0.5
+        },
+        "scale": {
+            "x": 0.8,
+            "y": 1.2,
+            "z": 0.5
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "description": "The Spice Islands, historically significant with pristine beaches and diving."
+    },
+    {
+        "id": "papua",
+        "name": "Papua",
+        "color": "#16C6FF",
+        "position": {
+            "x": 7,
+            "y": 0,
+            "z": 0
+        },
+        "scale": {
+            "x": 2.5,
+            "y": 2,
+            "z": 1.5
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "description": "The easternmost frontier with untouched nature, birds of paradise, and rich tribal culture."
+    }
+]
