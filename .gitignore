@@ -1,5 +1,4 @@
-oAuth/
 node_modules/
 .env
+oAuth/
 .DS_Store
-Thumbs.db
