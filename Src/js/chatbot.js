@@ -1,185 +1,192 @@
-class NusaBot {
-    constructor() {
-        this.isOpen = false;
-        this.chatHistory = document.getElementById('chat-history');
-        this.chatInput = document.getElementById('chat-input');
-        this.chatWindow = document.getElementById('chat-window');
-        this.sendBtn = document.getElementById('chat-send-btn');
-        this.loginOverlay = document.getElementById('chat-login-overlay');
+/* 
+   Using Groq API (Llama 3.3 70B Versatile)
+   NOTE: For GitHub deployment, the key is removed. 
+   To run locally or enable on Pages, replace "YOUR_GROQ_API_KEY_HERE" with your actual Groq Key.
+*/
 
-        // Knowledge Base (Simplified from destinations.json for basic matching)
-        this.destinations = {
-            'pantai': ['Uluwatu (Bali)', 'Pink Beach (Lombok)', 'Ora Beach (Maluku)', 'Kei Islands (Maluku)', 'Nusa Penida (Bali)'],
-            'gunung': ['Mount Bromo (Java)', 'Mount Rinjani (Lombok)', 'Kawah Ijen (Java)'],
-            'budaya': ['Borobudur Temple (Java)', 'Prambanan (Java)', 'Tana Toraja (Sulawesi)', 'Sade Village (Lombok)', 'Ubud (Bali)'],
-            'kota': ['Yogyakarta (Java)', 'Palembang (Sumatra)', 'Jayapura (Papua)', 'Seminyak (Bali)'],
-            'wildlife': ['Komodo National Park (Flores)', 'Tanjung Puting (Kalimantan)', 'Bukit Lawang (Sumatra)'],
-            'diving': ['Raja Ampat (Papua)', 'Bunaken Marine Park (Sulawesi)', 'Wakatobi (Sulawesi)']
+const API_KEY = "YOUR_GROQ_API_KEY_HERE";
+const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+const SYSTEM_PROMPT = `
+Kamu adalah "ExploreBot", teman jalan-jalan virtual yang asik banget buat website "ExploreNusantara".
+
+GAYA BAHASA & ATURAN (WAJIB):
+1. **Bahasa Gaul & Santai:** Gunakan bahasa anak muda (misal: "Guys", "Bestie", "Kuy", "Gokil", "Mantul"). Jangan kaku kayak robot!
+2. **Singkat & Padat:** Jawab maksimal 2-3 paragraf pendek. Jangan bertele-tele. To the point aja.
+3. **Wajib CTA (Call to Action):** Di AKHIR setiap jawaban, kamu HARUS mengajak user untuk **Daftar Jadi Member Explore Nusantara**.
+   - Iming-imingi keuntungan eksklusif (Promo, Akses VIP, Konten Spesial).
+   - Contoh CTA: "Btw Bestie, join Member Explore Nusantara yuk! Banyak diskon & akses eksklusif lho. Daftar sekarang gas keun! 🚀", "Biar makin cuan, gabung member dulu kuy! Keuntungannya melimpah ruah! 🤑"
+
+TOPIK:
+Hanya jawab seputar pariwisata Indonesia, budaya, dan fitur website ExploreNusantara.
+Kalau ditanya soal lain (Matematika, Politik, dll), tolak dengan santai: "Waduh bestie, aku cuma ngerti soal jalan-jalan nih! Tanya soal Bali aja yuk? 😜"
+
+CONTOH JAWABAN:
+User: "Bali ada apa aja?"
+Bot: "Wah, Bali tuh surga banget, Bestie! 🏖️ Ada pantai Kuta buat sunset-an, atau kalau mau yang adem bisa ke Ubud. Budayanya juga dapet banget, kayak Tari Kecak yang epik itu!
+
+Btw, coba deh Putar Peta 3D di halaman utama, view Balinya keren parah lho! 🗺️✨"
+`;
+
+let chatHistory = [];
+
+export async function sendMessageToGemini(userMessage) {
+    try {
+        let messages = [];
+
+        // Add System Prompt
+        messages.push({ role: "system", content: SYSTEM_PROMPT });
+
+        // Add History
+        messages = messages.concat(chatHistory);
+
+        // Add User Message
+        messages.push({ role: "user", content: userMessage });
+
+        const payload = {
+            model: "llama-3.3-70b-versatile",
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 300
         };
 
-        this.init();
-    }
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify(payload)
+        });
 
-    init() {
-        // Event Listeners
-        if (this.sendBtn) this.sendBtn.addEventListener('click', () => this.handleUserMessage());
-
-        if (this.chatInput) {
-            this.chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') this.handleUserMessage();
-            });
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`API Error: ${response.status} - ${errText}`);
         }
 
-        // Expose toggle globally
-        window.toggleChat = () => this.toggle();
+        const data = await response.json();
+        const replyText = data.choices[0].message.content;
 
-        // Check Auth State Initially
-        this.checkAuthState();
+        // Update History
+        chatHistory.push({ role: "user", content: userMessage });
+        chatHistory.push({ role: "assistant", content: replyText });
 
-        // Listen to Supabase Auth Changes if available
-        if (window.supabase) {
-            window.supabase.auth.onAuthStateChange((event, session) => {
-                this.updateAuthState(session?.user);
-            });
-        }
-    }
+        return replyText;
 
-    async checkAuthState() {
-        if (window.supabase) {
-            const { data: { session } } = await window.supabase.auth.getSession();
-            this.updateAuthState(session?.user);
-        }
-    }
-
-    updateAuthState(user) {
-        if (user) {
-            // Logged In
-            if (this.loginOverlay) this.loginOverlay.classList.add('hidden');
-            if (this.chatInput) this.chatInput.disabled = false;
-            // Welcome message if history empty
-            if (this.chatHistory && this.chatHistory.children.length === 0) {
-                this.addBotMessage(`Halo ${user.user_metadata?.custom_display_name || 'Traveler'}! 👋\nAda yang bisa Nusabot bantu? Mau cari pantai, gunung, atau budaya?`);
-            }
-        } else {
-            // Logged Out
-            if (this.loginOverlay) this.loginOverlay.classList.remove('hidden');
-            if (this.chatInput) this.chatInput.disabled = true;
-        }
-    }
-
-    toggle() {
-        this.isOpen = !this.isOpen;
-        if (this.chatWindow) {
-            if (this.isOpen) {
-                this.chatWindow.classList.remove('hidden', 'scale-95', 'opacity-0');
-                this.chatWindow.classList.add('scale-100', 'opacity-100');
-                // Scroll to bottom
-                if (this.chatHistory) this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
-            } else {
-                this.chatWindow.classList.add('hidden', 'scale-95', 'opacity-0');
-                this.chatWindow.classList.remove('scale-100', 'opacity-100');
-            }
-        }
-    }
-
-    handleUserMessage() {
-        const text = this.chatInput.value.trim();
-        if (!text) return;
-
-        // User Message
-        this.addUserMessage(text);
-        this.chatInput.value = '';
-
-        // Bot Thinking (Fake Delay)
-        this.addTypingIndicator();
-
-        setTimeout(() => {
-            this.removeTypingIndicator();
-            this.generateResponse(text.toLowerCase());
-        }, 1000);
-    }
-
-    generateResponse(input) {
-        let response = "";
-
-        // Simple Rule Model
-        if (input.includes('hallo') || input.includes('halo') || input.includes('hai')) {
-            response = "Halo juga! Siap menjelajah Indonesia? 🗺️";
-        } else if (input.includes('siapa kamu') || input.includes('bot')) {
-            response = "Saya Nusabot, asisten virtual ExploreNusantara! Tugas saya bantu kamu cari tempat liburan seru. 🤖";
-        } else if (input.includes('pantai') || input.includes('laut')) {
-            response = this.recommend('pantai', "Untuk pecinta air, ini nih pantai terbaik:");
-        } else if (input.includes('gunung') || input.includes('mendaki')) {
-            response = this.recommend('gunung', "Suka ketinggian? Coba taklukkan ini:");
-        } else if (input.includes('budaya') || input.includes('sejarah') || input.includes('candi')) {
-            response = this.recommend('budaya', "Indonesia kaya budaya! Ini rekomendasinya:");
-        } else if (input.includes('kota') || input.includes('belanja')) {
-            response = this.recommend('kota', "Mau city tour? Ke sini aja:");
-        } else if (input.includes('hewan') || input.includes('satwa') || input.includes('alam')) {
-            response = this.recommend('wildlife', "Mau lihat satwa langka? Cek tempat ini:");
-        } else if (input.includes('seni') || input.includes('tari') || input.includes('wayang')) {
-            response = "Wah, kamu suka seni ya! Cek bagian 'Warisan Budaya' di halaman utama kita untuk info Wayang, Batik, dan lainnya! 🎭";
-        } else {
-            response = "Maaf, Nusabot belum mengerti itu. 😅\n\nCoba tanya tentang:\n- Pantai 🏖️\n- Gunung ⛰️\n- Budaya 🏛️";
-        }
-
-        this.addBotMessage(response);
-    }
-
-    recommend(category, prefix) {
-        const items = this.destinations[category];
-        const randomItems = items.sort(() => 0.5 - Math.random()).slice(0, 3); // Pick 3 random
-        return `${prefix}\n\n${randomItems.map(i => `• ${i}`).join('\n')}`;
-    }
-
-    addUserMessage(text) {
-        const div = document.createElement('div');
-        div.className = 'flex justify-end mb-4';
-        div.innerHTML = `<div class="bg-brand-cyan text-brand-navy px-4 py-2 rounded-l-xl rounded-tr-xl max-w-[80%] text-sm font-medium shadow-md">${text}</div>`;
-        this.chatHistory.appendChild(div);
-        this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
-    }
-
-    addBotMessage(text) {
-        const div = document.createElement('div');
-        div.className = 'flex justify-start mb-4';
-        // Convert \n to <br> for HTML display
-        const formattedText = text.replace(/\n/g, '<br>');
-        div.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-brand-navy border border-brand-cyan/50 flex items-center justify-center mr-2 shrink-0">
-                <span class="text-xs">🤖</span>
-            </div>
-            <div class="bg-white/10 text-white border border-white/5 px-4 py-2 rounded-r-xl rounded-tl-xl max-w-[80%] text-sm leading-relaxed shadow-sm">
-                ${formattedText}
-            </div>
-        `;
-        this.chatHistory.appendChild(div);
-        this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
-    }
-
-    addTypingIndicator() {
-        const div = document.createElement('div');
-        div.id = 'typing-indicator';
-        div.className = 'flex justify-start mb-4';
-        div.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-brand-navy border border-brand-cyan/50 flex items-center justify-center mr-2 shrink-0">
-                <span class="text-xs">🤖</span>
-            </div>
-            <div class="bg-white/10 px-4 py-3 rounded-r-xl rounded-tl-xl flex gap-1 items-center">
-                <div class="w-2 h-2 bg-brand-cyan/50 rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-brand-cyan/50 rounded-full animate-bounce delay-75"></div>
-                <div class="w-2 h-2 bg-brand-cyan/50 rounded-full animate-bounce delay-150"></div>
-            </div>
-        `;
-        this.chatHistory.appendChild(div);
-        this.chatHistory.scrollTop = this.chatHistory.scrollHeight;
-    }
-
-    removeTypingIndicator() {
-        const el = document.getElementById('typing-indicator');
-        if (el) el.remove();
+    } catch (error) {
+        console.error("Groq Error:", error);
+        return `Maaf kak, ada gangguan teknis. (Error: ${error.message || "Connection Failed"})`;
     }
 }
 
-// Initialize immediately (Script is at bottom of body)
-window.nusabot = new NusaBot();
+// UI Handling
+function initChatbot() {
+    const chatWidget = document.getElementById('chat-widget');
+    const chatBtn = document.getElementById('chat-toggle-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const closeBtn = document.getElementById('chat-close-btn');
+
+    // Make sure we don't init twice
+    if (chatBtn && chatBtn.dataset.init === "true") return;
+    if (chatBtn) chatBtn.dataset.init = "true";
+
+    console.log("Chatbot UI Initialized. Button:", chatBtn);
+
+    // Toggle Chat
+    if (chatBtn) {
+        chatBtn.addEventListener('click', () => {
+            console.log("Click detected");
+            chatWidget.classList.toggle('hidden');
+            if (!chatWidget.classList.contains('hidden')) {
+                // Animation if GSAP loaded
+                if (typeof gsap !== 'undefined') {
+                    gsap.fromTo(chatWidget,
+                        { opacity: 0, scale: 0.8, y: 20 },
+                        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
+                    );
+                }
+                setTimeout(() => chatInput.focus(), 100);
+            }
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            chatWidget.classList.add('hidden');
+        });
+    }
+
+    // Send Message Logic
+    async function handleSend() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Add User Message to UI
+        appendMessage('user', message);
+        chatInput.value = '';
+
+        // Show Loading
+        const loadingId = appendMessage('bot', '...', true);
+
+        // Call Gemini
+        const reply = await sendMessageToGemini(message);
+
+        // Remove Loading and Show Reply
+        removeMessage(loadingId);
+        appendMessage('bot', reply);
+    }
+
+    if (sendBtn) {
+        sendBtn.addEventListener('click', handleSend);
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    }
+}
+
+// Run init immediately if DOM is ready, otherwise wait
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChatbot);
+} else {
+    initChatbot();
+}
+
+function appendMessage(sender, text, isLoading = false) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    const id = 'msg-' + Date.now();
+    div.id = id;
+
+    const isUser = sender === 'user';
+
+    div.className = `flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-4 items-end gap-2`;
+
+    const avatar = isUser
+        ? '' // User doesn't need avatar in bubble, maybe? Or reuse profile.
+        : `<div class="w-8 h-8 rounded-full bg-brand-cyan/20 flex items-center justify-center p-1 border border-brand-cyan flex-shrink-0">
+             <img src="./src/img/logo.png" class="w-full h-full object-contain">
+           </div>`;
+
+    const bubbleColor = isUser ? 'bg-brand-cyan text-brand-navy' : 'bg-white/10 text-white border border-white/20';
+
+    div.innerHTML = `
+        ${!isUser ? avatar : ''}
+        <div class="max-w-[80%] rounded-2xl px-4 py-2 text-sm ${bubbleColor} ${isUser ? 'rounded-br-none' : 'rounded-bl-none'} shadow-md">
+            ${isLoading ? '<div class="flex gap-1"><div class="w-2 h-2 bg-current rounded-full animate-bounce"></div><div class="w-2 h-2 bg-current rounded-full animate-bounce delay-75"></div><div class="w-2 h-2 bg-current rounded-full animate-bounce delay-150"></div></div>' : marked.parse(text)}
+        </div>
+    `;
+
+    messagesContainer.appendChild(div);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    return id;
+}
+
+function removeMessage(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
