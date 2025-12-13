@@ -22,6 +22,12 @@ GAYA BAHASA & ATURAN (WAJIB):
    - 🌊 **Paket Lombok (5 Hari):** Mulai Rp 4 Juta++
    *(Gunakan emoji biar menarik!)*
 
+5. **KONTROL UI (INTERAKTIF):**
+   Jika user bertanya detail tentang suatu daerah (Bali, Lombok, Jawa, Sumatra, Kalimantan, Sulawesi, Papua, Maluku, Flores),
+   TAMBAHKAN perintah rahasia ini di AKHIR jawabanmu (Baris baru):
+   `[ACTION: OPEN_PANEL NamaDaerah]`
+   Contoh: `[ACTION: OPEN_PANEL Bali]`, `[ACTION: OPEN_PANEL Lombok]`
+
 TOPIK:
 Hanya jawab seputar pariwisata Indonesia, budaya, dan fitur website ExploreNusantara.
 Kalau ditanya soal lain (Matematika, Politik, dll), tolak dengan santai: "Waduh bestie, aku cuma ngerti soal jalan-jalan nih! Tanya soal Bali aja yuk? 😜"
@@ -71,7 +77,37 @@ export async function sendMessageToGemini(userMessage) {
         }
 
         const data = await response.json();
-        const replyText = data.choices[0].message.content;
+        let replyText = data.choices[0].message.content;
+
+        // --- INTERACTIVE UI LOGIC ---
+        // Check for Action Tag
+        const actionMatch = replyText.match(/\[ACTION: OPEN_PANEL\s+(.*?)\]/);
+
+        if (actionMatch) {
+            const regionName = actionMatch[1].trim();
+            console.log("Chatbot Triggered Action for:", regionName);
+
+            // Remove the tag from the visible text
+            replyText = replyText.replace(actionMatch[0], "").trim();
+
+            // Execute Map Action (If mapApp exists)
+            if (window.mapApp && typeof window.mapApp.getRegionIdFromName === 'function') {
+                const regionId = window.mapApp.getRegionIdFromName(regionName);
+                if (regionId && regionId !== 'other') {
+                    console.log("Opening Panel for ID:", regionId);
+                    // Open Panel
+                    window.mapApp.openPanel(regionId, regionName);
+
+                    // Bonus: Auto-zoom if supported
+                    // Simulation of "Click" behavior if possible, or we just rely on panel for now.
+                    // To do perfect Zoom, we would need the specific mesh object.
+                    // For now, showing the list is the User Request ("menunjukkan pilihan destinasi").
+                } else {
+                    console.warn("Region ID not found for", regionName);
+                }
+            }
+        }
+        // -----------------------------
 
         // Update History
         chatHistory.push({ role: "user", content: userMessage });

@@ -704,4 +704,4 @@ class MapApp {
     }
 }
 
-new MapApp();
+window.mapApp = new MapApp();
