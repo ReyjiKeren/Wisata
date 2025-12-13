@@ -50,6 +50,12 @@ export async function sendMessageToGemini(userMessage) {
             max_tokens: 300
         };
 
+        console.log("Attempting to send message to Groq...");
+
+        // Debug Key (Show first 4 chars only for safety)
+        const debugKey = API_KEY ? API_KEY.substring(0, 4) + "..." : "MISSING";
+        console.log("API Key Status:", debugKey);
+
         const response = await fetch(API_URL, {
             method: "POST",
             headers: {
@@ -59,8 +65,11 @@ export async function sendMessageToGemini(userMessage) {
             body: JSON.stringify(payload)
         });
 
+        console.log("Response Status:", response.status);
+
         if (!response.ok) {
             const errText = await response.text();
+            console.error("API Response Error Payload:", errText);
             throw new Error(`API Error: ${response.status} - ${errText}`);
         }
 
@@ -75,7 +84,11 @@ export async function sendMessageToGemini(userMessage) {
 
     } catch (error) {
         console.error("Groq Error:", error);
-        return `Maaf kak, ada gangguan teknis. (Error: ${error.message || "Connection Failed"})`;
+        return `Maaf kak, ada gangguan teknis.
+        
+        System Error Details:
+        ${error.message}
+        `;
     }
 }
 
