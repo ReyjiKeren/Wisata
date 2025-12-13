@@ -5,7 +5,8 @@
 
 // Decode Base64 Key at runtime to bypass static analysis
 const API_KEY = atob("Z3NrX3dDMDFSa0RJcjFVQ05PMkk4ZFZ1V0dkeWIzRllwcXdGaVpJTWprNENHWUp4WWVUQjdWNGw=");
-const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+// Use CORS Proxy to bypass browser restrictions on GitHub Pages
+const API_URL = "https://corsproxy.io/?" + encodeURIComponent("https://api.groq.com/openai/v1/chat/completions");
 
 const SYSTEM_PROMPT = `
 Kamu adalah "ExploreBot", teman jalan-jalan virtual yang asik banget buat website "ExploreNusantara".
@@ -84,10 +85,17 @@ export async function sendMessageToGemini(userMessage) {
 
     } catch (error) {
         console.error("Groq Error:", error);
+
+        // Detect CORS/Network errors
+        let errorMsg = error.message;
+        if (error.message.includes("Failed to fetch")) {
+            errorMsg = "Network/CORS Error. Browser blocked the request. Try using a VPN or local server.";
+        }
+
         return `Maaf kak, ada gangguan teknis.
         
         System Error Details:
-        ${error.message}
+        ${errorMsg}
         `;
     }
 }
