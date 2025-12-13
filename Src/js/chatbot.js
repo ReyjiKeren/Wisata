@@ -5,8 +5,8 @@
 
 // Decode Base64 Key at runtime to bypass static analysis
 const API_KEY = atob("Z3NrX3dDMDFSa0RJcjFVQ05PMkk4ZFZ1V0dkeWIzRllwcXdGaVpJTWprNENHWUp4WWVUQjdWNGw=");
-// Use CORS Proxy to bypass browser restrictions on GitHub Pages
-const API_URL = "https://corsproxy.io/?" + encodeURIComponent("https://api.groq.com/openai/v1/chat/completions");
+// Use alternative CORS Proxy (ThingProxy) often more reliable for POST
+const API_URL = "https://thingproxy.freeboard.io/fetch/https://api.groq.com/openai/v1/chat/completions";
 
 const SYSTEM_PROMPT = `
 Kamu adalah "ExploreBot", teman jalan-jalan virtual yang asik banget buat website "ExploreNusantara".
