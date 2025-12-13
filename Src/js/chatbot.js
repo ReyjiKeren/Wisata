@@ -1,12 +1,11 @@
 /* 
-   Using Groq API (Llama 3.3 70B Versatile)
-   NOTE: Key is obfuscated to prevent GitHub auto-revocation.
+   Using Groq API via Supabase Edge Functions (Backend Proxy)
+   Values security and reliability.
 */
 
-// Decode Base64 Key at runtime to bypass static analysis
-const API_KEY = atob("Z3NrX3dDMDFSa0RJcjFVQ05PMkk4ZFZ1V0dkeWIzRllwcXdGaVpJTWprNENHWUp4WWVUQjdWNGw=");
-// Use CORS Bridged Proxy (Final Attempt)
-const API_URL = "https://cors.bridged.cc/https://api.groq.com/openai/v1/chat/completions";
+// No API Key needed on Frontend! (Stored in Backend)
+// Endpoint: supabase/functions/groq-chat
+const API_URL = "https://qfjmcgmjziequxqzfnyv.supabase.co/functions/v1/groq-chat";
 
 const SYSTEM_PROMPT = `
 Kamu adalah "ExploreBot", teman jalan-jalan virtual yang asik banget buat website "ExploreNusantara".
@@ -45,23 +44,15 @@ export async function sendMessageToGemini(userMessage) {
         messages.push({ role: "user", content: userMessage });
 
         const payload = {
-            model: "llama-3.3-70b-versatile",
-            messages: messages,
-            temperature: 0.7,
-            max_tokens: 300
+            messages: messages
         };
 
-        console.log("Attempting to send message to Groq...");
-
-        // Debug Key (Show first 4 chars only for safety)
-        const debugKey = API_KEY ? API_KEY.substring(0, 4) + "..." : "MISSING";
-        console.log("API Key Status:", debugKey);
+        console.log("Sending to Supabase Backend...");
 
         const response = await fetch(API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify(payload)
         });
@@ -70,8 +61,8 @@ export async function sendMessageToGemini(userMessage) {
 
         if (!response.ok) {
             const errText = await response.text();
-            console.error("API Response Error Payload:", errText);
-            throw new Error(`API Error: ${response.status} - ${errText}`);
+            console.error("Backend Error Payload:", errText);
+            throw new Error(`Server Error: ${response.status} - ${errText}`);
         }
 
         const data = await response.json();
@@ -84,19 +75,14 @@ export async function sendMessageToGemini(userMessage) {
         return replyText;
 
     } catch (error) {
-        console.error("Groq Error:", error);
+        console.error("Chat Error:", error);
 
-        // Detect CORS/Network errors
-        let errorMsg = error.message;
-        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMsg = "Browser memblokir koneksi (CORS). Solusi: Install ekstensi 'Allow CORS' di Chrome/Edge atau akses via Localhost.";
-        }
-
-        return `Maaf kak, ada gangguan teknis.
+        return `Maaf kak, ada gangguan teknis di server.
         
         System Error Details:
-        ${errorMsg}
-        `;
+        ${error.message}
+        
+        (Pastikan Backend Supabase sudah di-deploy!)`;
     }
 }
 
@@ -151,7 +137,7 @@ function initChatbot() {
         // Show Loading
         const loadingId = appendMessage('bot', '...', true);
 
-        // Call Gemini
+        // Call Gemini (Groq via Supabase)
         const reply = await sendMessageToGemini(message);
 
         // Remove Loading and Show Reply
