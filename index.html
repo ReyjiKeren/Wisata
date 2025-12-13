@@ -825,24 +825,28 @@
             wayang: {
                 title: "Wayang Kulit",
                 type: "Shadow Arts",
+                price: "Rp 75.000",
                 image: "https://tse2.mm.bing.net/th?q=Wayang%20Kulit%20Shadow%20Puppet%20Performance&w=800&h=800&c=7&rs=1",
                 description: "Wayang Kulit adalah seni pertunjukan tradisional Indonesia yang telah diakui oleh UNESCO sebagai Masterpiece of Oral and Intangible Heritage of Humanity. Pertunjukan ini menggunakan boneka yang terbuat dari kulit kerbau yang dipahat halus, dimainkan di balik layar putih dengan sorotan lampu, menciptakan bayangan yang magis. Dalang tidak hanya sebagai penggerak wayang, tetapi juga narator, penyanyi, dan pemimpin orkestra gamelan."
             },
             batik: {
                 title: "Batik Nusantara",
                 type: "Textile",
+                price: "Rp 150.000",
                 image: "https://tse2.mm.bing.net/th?q=Batik%20Indonesia%20Pattern%20Textile&w=800&h=800&c=7&rs=1",
                 description: "Batik adalah kain bergambar yang pembuatannya secara khusus dengan menuliskan atau menerakan malam pada kain itu. Batik Indonesia memiliki teknik, teknologi, serta pengembangan motif dan budaya yang terkait, yang oleh UNESCO telah ditetapkan sebagai Warisan Kemanusiaan untuk Budaya Lisan dan Nonbendawi."
             },
             kecak: {
                 title: "Tari Kecak",
                 type: "Performance",
+                price: "Rp 150.000",
                 image: "https://tse2.mm.bing.net/th?q=Kecak%20Dance%20Uluwatu%20Bali&w=800&h=800&c=7&rs=1",
                 description: "Tari Kecak adalah pertunjukan dramatari seni khas Bali yang lebih utama menceritakan mengenai Ramayana dan dimainkan terutama oleh laki-laki. Tarian ini dipertunjukkan oleh banyak (puluhan atau lebih) penari laki-laki yang duduk berbaris melingkar dan dengan irama tertentu menyerukan 'cak' dan mengangkat kedua lengan."
             },
             gadang: {
                 title: "Rumah Gadang",
                 type: "Architecture",
+                price: "Rp 15.000",
                 image: "https://tse2.mm.bing.net/th?q=Rumah%20Gadang%20Minangkabau%20Architecture&w=800&h=800&c=7&rs=1",
                 description: "Rumah Gadang adalah nama untuk rumah adat Minangkabau yang merupakan rumah tradisional dan banyak dijumpai di Sumatera Barat, Indonesia. Rumah ini memiliki ciri khas atap yang melengkung runcing menjulang seperti tanduk kerbau (gonjong). Bentuk atap yang melengkung dan runcing ke atas itu sering disebut gonjong, maka rumah gadang sering juga disebut rumah bagonjong."
             }
@@ -863,8 +867,7 @@
             if (title) title.innerText = data.title;
             if (type) type.innerText = data.type;
             if (desc) desc.innerText = data.description;
-            // Hide price or set to "Priceless" for heritage
-            if (price) price.innerText = "Warisan Budaya";
+            if (price) price.innerText = data.price;
 
             if (modal) {
                 modal.classList.remove('hidden');
