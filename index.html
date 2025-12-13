@@ -898,43 +898,36 @@
             }
         }
     </script>
-
-    <!-- CHATBOT WIDGET START -->
-    <!-- Floating Button -->
-    <button id="chatbot-toggle" onclick="toggleChat()"
-        class="fixed bottom-6 right-6 z-[80] w-14 h-14 bg-brand-cyan rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(22,198,255,0.4)] hover:scale-110 transition-transform duration-300 group">
-        <!-- Message Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-brand-navy group-hover:animate-pulse" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-        </svg>
+    <!-- Chatbot Floating Action Button -->
+    <button onclick="window.toggleChat()"
+        class="fixed bottom-6 right-6 z-[80] w-14 h-14 bg-brand-cyan rounded-full shadow-[0_0_20px_rgba(22,198,255,0.4)] flex items-center justify-center text-brand-navy hover:scale-110 active:scale-95 transition-all group">
+        <span class="text-2xl transform group-hover:rotate-12 transition-transform">🤖</span>
+        <!-- Tooltip -->
+        <span
+            class="absolute right-full mr-4 bg-white/10 text-white text-xs px-2 py-1 rounded backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10">
+            Tanya Nusabot
+        </span>
     </button>
 
-    <!-- Chat Window -->
-    <div id="chatbot-window"
-        class="fixed bottom-24 right-6 z-[80] w-80 md:w-96 glass-panel rounded-2xl border border-brand-cyan/30 flex flex-col overflow-hidden shadow-[0_0_30px_rgba(22,198,255,0.2)] transform translate-y-10 opacity-0 pointer-events-none transition-all duration-300 scale-95 origin-bottom-right">
+    <!-- Chatbot Window -->
+    <div id="chat-window"
+        class="hidden fixed bottom-24 right-6 z-[80] w-80 md:w-96 h-[500px] glass-panel rounded-2xl border border-brand-cyan/30 flex flex-col overflow-hidden shadow-[0_0_50px_rgba(22,198,255,0.2)] transition-all origin-bottom-right duration-300">
 
         <!-- Header -->
-        <div
-            class="bg-brand-cyan/10 p-4 border-b border-brand-cyan/20 flex justify-between items-center backdrop-blur-md">
+        <div class="bg-brand-navy/80 p-4 border-b border-white/10 flex justify-between items-center backdrop-blur-md">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-brand-cyan flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-brand-navy" viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-                        <path
-                            d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-                    </svg>
+                <div class="w-8 h-8 rounded-full bg-brand-cyan flex items-center justify-center shadow-lg">
+                    <span class="text-lg">🤖</span>
                 </div>
                 <div>
-                    <h4 class="font-bold text-white text-sm">NusaBot 🤖</h4>
-                    <span class="text-[10px] text-brand-cyan flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online
-                    </span>
+                    <h3 class="font-bold text-white text-sm">Nusabot AI</h3>
+                    <p class="text-[10px] text-brand-cyan flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Online
+                    </p>
                 </div>
             </div>
-            <button onclick="toggleChat()" class="text-gray-400 hover:text-white transition-colors">
+            <button onclick="window.toggleChat()" class="text-gray-400 hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -942,154 +935,45 @@
             </button>
         </div>
 
-        <!-- Messages Area -->
-        <div id="chat-messages" class="flex-1 h-80 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-brand-navy/60">
-            <!-- Bot Welcome Message -->
-            <div class="flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-brand-cyan shrink-0 flex items-center justify-center mt-1">
-                    <span class="text-brand-navy font-bold text-xs">AI</span>
-                </div>
-                <div class="bg-white/10 p-3 rounded-2xl rounded-tl-none text-sm text-gray-200 border border-white/5">
-                    Halo! Saya NusaBot. 👋<br>Ada yang bisa saya bantu jelajahi hari ini?
-                </div>
+        <!-- Chat History -->
+        <div id="chat-history" class="flex-1 bg-brand-navy/60 p-4 overflow-y-auto custom-scrollbar space-y-4 relative">
+            <!-- Messages will be injected here -->
+
+            <!-- Login Overlay (Locked State) -->
+            <div id="chat-login-overlay"
+                class="absolute inset-0 bg-brand-navy/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-6 hidden">
+                <span class="text-4xl mb-4">🔒</span>
+                <h4 class="text-white font-bold mb-2">Akses Terkunci</h4>
+                <p class="text-gray-400 text-xs mb-6 leading-relaxed">
+                    Maaf, kamu harus login dulu untuk ngobrol sama Nusabot.
+                </p>
+                <button onclick="window.authParams.showLogin()"
+                    class="bg-brand-cyan text-brand-navy font-bold px-6 py-2 rounded-full text-sm hover:bg-white hover:shadow-[0_0_15px_rgba(22,198,255,0.4)] transition-all">
+                    Login Sekarang
+                </button>
             </div>
         </div>
 
         <!-- Input Area -->
-        <div class="p-3 border-t border-brand-cyan/20 bg-brand-navy/80 flex gap-2">
-            <input type="text" id="chat-input" placeholder="Tanya sesuatu..."
-                onkeypress="if(event.key === 'Enter') sendMessage()"
-                class="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-cyan focus:bg-brand-navy transition-all">
-            <button onclick="sendMessage()"
-                class="p-2 bg-brand-cyan rounded-full text-brand-navy hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-            </button>
+        <div class="p-3 bg-brand-navy/80 border-t border-white/10 backdrop-blur-md">
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Tanya wisata..."
+                    class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-cyan/50 placeholder-gray-500 transition-colors"
+                    disabled>
+                <button id="chat-send-btn"
+                    class="bg-brand-cyan/20 hover:bg-brand-cyan text-brand-cyan hover:text-brand-navy p-2 rounded-xl transition-colors border border-brand-cyan/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
-        let isChatOpen = false;
-
-        function toggleChat() {
-            const chatWindow = document.getElementById('chatbot-window');
-            isChatOpen = !isChatOpen;
-
-            if (isChatOpen) {
-                chatWindow.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10', 'scale-95');
-                chatWindow.classList.add('opacity-100', 'translate-y-0', 'scale-100');
-                // Auto focus input
-                setTimeout(() => document.getElementById('chat-input').focus(), 300);
-            } else {
-                chatWindow.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10', 'scale-95');
-                chatWindow.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
-            }
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            const messageContainer = document.getElementById('chat-messages');
-
-            if (!message) return;
-
-            // 1. Add User Message
-            const userHTML = `
-                <div class="flex gap-3 justify-end items-end animate-fade-in-up">
-                    <div class="bg-brand-cyan text-brand-navy p-3 rounded-2xl rounded-tr-none text-sm font-medium shadow-[0_0_10px_rgba(22,198,255,0.2)]">
-                        ${message}
-                    </div>
-                </div>
-            `;
-            messageContainer.insertAdjacentHTML('beforeend', userHTML);
-            input.value = '';
-            scrollToBottom();
-
-            // 2. Show Typing Indicator
-            const typingID = 'typing-' + Date.now();
-            const typingHTML = `
-                <div id="${typingID}" class="flex gap-3 animate-fade-in-up">
-                    <div class="w-8 h-8 rounded-full bg-brand-cyan shrink-0 flex items-center justify-center mt-1">
-                        <span class="text-brand-navy font-bold text-xs">AI</span>
-                    </div>
-                    <div class="bg-white/10 p-3 rounded-2xl rounded-tl-none text-sm text-gray-200 border border-white/5 flex gap-1 items-center">
-                        <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
-                        <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
-                        <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
-                    </div>
-                </div>
-            `;
-            messageContainer.insertAdjacentHTML('beforeend', typingHTML);
-            scrollToBottom();
-
-            // 3. Fake AI Delay & Response
-            setTimeout(() => {
-                // Remove typing indicator
-                const typingEl = document.getElementById(typingID);
-                if (typingEl) typingEl.remove();
-
-                const response = getBotResponse(message);
-
-                const botHTML = `
-                    <div class="flex gap-3 animate-fade-in-up">
-                        <div class="w-8 h-8 rounded-full bg-brand-cyan shrink-0 flex items-center justify-center mt-1">
-                            <span class="text-brand-navy font-bold text-xs">AI</span>
-                        </div>
-                        <div class="bg-white/10 p-3 rounded-2xl rounded-tl-none text-sm text-gray-200 border border-white/5">
-                            ${response}
-                        </div>
-                    </div>
-                `;
-                messageContainer.insertAdjacentHTML('beforeend', botHTML);
-                scrollToBottom();
-
-            }, 1000 + Math.random() * 1000); // 1-2s delay
-        }
-
-        function scrollToBottom() {
-            const container = document.getElementById('chat-messages');
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // DUMMY AI LOGIC
-        function getBotResponse(msg) {
-            msg = msg.toLowerCase();
-
-            const responses = {
-                greetings: ["halo", "hai", "hi", "selamat", "pagi", "siang", "sore", "malam"],
-                price: ["harga", "biaya", "tiket", "bayar", "murah", "mahal"],
-                location: ["lokasi", "dimana", "alamat", "peta", "tempat"],
-                culture: ["budaya", "wayang", "batik", "tari", "adat"],
-                thank: ["makasih", "terima kasih", "thanks", "tengkyu"],
-                destinations: ["destinasi", "wisata", "jalan", "liburan", "rekomendasi"]
-            };
-
-            if (responses.greetings.some(k => msg.includes(k))) {
-                return "Halo traveler! 👋 Mau keliling Indonesia kemana hari ini?";
-            }
-            if (responses.price.some(k => msg.includes(k))) {
-                return "Untuk harga tiket masuk destinasi, kisarannya mulai dari **Rp 15.000** (alam/budaya) sampai **Rp 150.000** (pertunjukan khusus). Cek detail di kartu masing-masing ya!";
-            }
-            if (responses.location.some(k => msg.includes(k))) {
-                return "Semua destinasi ini ada di Indonesia! 🇮🇩 Kamu bisa klik pulau di peta 3D untuk lihat detail lokasi spesifiknya.";
-            }
-            if (responses.culture.some(k => msg.includes(k))) {
-                return "Wah, kamu suka budaya? Kita punya Wayang, Batik, Tari Kecak, dan Rumah Gadang di galeri Digital Heritage. Scroll ke bawah untuk lihat!";
-            }
-            if (responses.destinations.some(k => msg.includes(k))) {
-                return "Rekomendasi saya: **Raja Ampat** buat diving, **Bali** buat santai, atau **Borobudur** buat sejarah. Kamu tim gunung atau pantai?";
-            }
-            if (responses.thank.some(k => msg.includes(k))) {
-                return "Sama-sama! Jangan lupa oleh-olehnya ya 😉";
-            }
-
-            return "Maaf, saya cuma bot pemula 😅. Coba tanya tentang 'harga', 'lokasi', atau 'rekomendasi' wisata.";
-        }
-    </script>
-    <!-- CHATBOT WIDGET END -->
+    <!-- Chatbot Logic -->
+    <script src="./src/js/chatbot.js"></script>
 </body>
 
 </html>
