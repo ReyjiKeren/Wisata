@@ -167,7 +167,8 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-12 max-w-7xl mx-auto w-full">
             <!-- Card 1 -->
-            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+            <div onclick="showHeritageDetail('wayang')"
+                class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
                 <img src="https://tse2.mm.bing.net/th?q=Wayang%20Kulit%20Shadow%20Puppet%20Performance&w=800&h=800&c=7&rs=1"
                     alt="Wayang"
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -185,7 +186,8 @@
             </div>
 
             <!-- Card 2 -->
-            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+            <div onclick="showHeritageDetail('batik')"
+                class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
                 <img src="https://tse2.mm.bing.net/th?q=Batik%20Indonesia%20Pattern%20Textile&w=800&h=800&c=7&rs=1"
                     alt="Batik"
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -201,7 +203,8 @@
             </div>
 
             <!-- Card 3 -->
-            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+            <div onclick="showHeritageDetail('kecak')"
+                class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
                 <img src="https://tse2.mm.bing.net/th?q=Kecak%20Dance%20Uluwatu%20Bali&w=800&h=800&c=7&rs=1"
                     alt="Tari Kecak"
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -219,7 +222,8 @@
             </div>
 
             <!-- Card 4 -->
-            <div class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
+            <div onclick="showHeritageDetail('gadang')"
+                class="group relative h-96 rounded-2xl overflow-hidden border border-brand-cyan/20 cursor-pointer">
                 <img src="https://tse2.mm.bing.net/th?q=Rumah%20Gadang%20Minangkabau%20Architecture&w=800&h=800&c=7&rs=1"
                     alt="Rumah Adat"
                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -814,6 +818,82 @@
                 });
             });
         });
+    </script>
+    <!-- Heritage Detail Script -->
+    <script>
+        const heritageData = {
+            wayang: {
+                title: "Wayang Kulit",
+                type: "Shadow Arts",
+                image: "https://tse2.mm.bing.net/th?q=Wayang%20Kulit%20Shadow%20Puppet%20Performance&w=800&h=800&c=7&rs=1",
+                description: "Wayang Kulit adalah seni pertunjukan tradisional Indonesia yang telah diakui oleh UNESCO sebagai Masterpiece of Oral and Intangible Heritage of Humanity. Pertunjukan ini menggunakan boneka yang terbuat dari kulit kerbau yang dipahat halus, dimainkan di balik layar putih dengan sorotan lampu, menciptakan bayangan yang magis. Dalang tidak hanya sebagai penggerak wayang, tetapi juga narator, penyanyi, dan pemimpin orkestra gamelan."
+            },
+            batik: {
+                title: "Batik Nusantara",
+                type: "Textile",
+                image: "https://tse2.mm.bing.net/th?q=Batik%20Indonesia%20Pattern%20Textile&w=800&h=800&c=7&rs=1",
+                description: "Batik adalah kain bergambar yang pembuatannya secara khusus dengan menuliskan atau menerakan malam pada kain itu. Batik Indonesia memiliki teknik, teknologi, serta pengembangan motif dan budaya yang terkait, yang oleh UNESCO telah ditetapkan sebagai Warisan Kemanusiaan untuk Budaya Lisan dan Nonbendawi."
+            },
+            kecak: {
+                title: "Tari Kecak",
+                type: "Performance",
+                image: "https://tse2.mm.bing.net/th?q=Kecak%20Dance%20Uluwatu%20Bali&w=800&h=800&c=7&rs=1",
+                description: "Tari Kecak adalah pertunjukan dramatari seni khas Bali yang lebih utama menceritakan mengenai Ramayana dan dimainkan terutama oleh laki-laki. Tarian ini dipertunjukkan oleh banyak (puluhan atau lebih) penari laki-laki yang duduk berbaris melingkar dan dengan irama tertentu menyerukan 'cak' dan mengangkat kedua lengan."
+            },
+            gadang: {
+                title: "Rumah Gadang",
+                type: "Architecture",
+                image: "https://tse2.mm.bing.net/th?q=Rumah%20Gadang%20Minangkabau%20Architecture&w=800&h=800&c=7&rs=1",
+                description: "Rumah Gadang adalah nama untuk rumah adat Minangkabau yang merupakan rumah tradisional dan banyak dijumpai di Sumatera Barat, Indonesia. Rumah ini memiliki ciri khas atap yang melengkung runcing menjulang seperti tanduk kerbau (gonjong). Bentuk atap yang melengkung dan runcing ke atas itu sering disebut gonjong, maka rumah gadang sering juga disebut rumah bagonjong."
+            }
+        };
+
+        function showHeritageDetail(key) {
+            const data = heritageData[key];
+            if (!data) return;
+
+            const modal = document.getElementById('destination-detail-modal');
+            const img = document.getElementById('dest-detail-img');
+            const title = document.getElementById('dest-detail-title');
+            const type = document.getElementById('dest-detail-type');
+            const desc = document.getElementById('dest-detail-desc');
+            const price = document.getElementById('dest-detail-price');
+
+            if (img) img.src = data.image;
+            if (title) title.innerText = data.title;
+            if (type) type.innerText = data.type;
+            if (desc) desc.innerText = data.description;
+            // Hide price or set to "Priceless" for heritage
+            if (price) price.innerText = "Warisan Budaya";
+
+            if (modal) {
+                modal.classList.remove('hidden');
+
+                // GSAP Animation Sequence
+                // 1. Reset Initial State
+                gsap.set(modal, { opacity: 0 });
+                gsap.set('#dest-modal-content', { scale: 0.8, opacity: 0 });
+                gsap.set('#dest-detail-img', { scale: 1.1, opacity: 0 });
+
+                // Target inner text elements for staggering
+                const textElements = document.querySelectorAll('#dest-modal-content h3, #dest-modal-content span, #dest-modal-content p');
+                gsap.set(textElements, { y: 20, opacity: 0 });
+
+                // 2. Animate Sequence
+                const tl = gsap.timeline();
+
+                tl.to(modal, { duration: 0.3, opacity: 1 })
+                    .to('#dest-modal-content', { duration: 0.5, scale: 1, opacity: 1, ease: "back.out(1.7)" }, "-=0.2")
+                    .to('#dest-detail-img', { duration: 0.8, scale: 1, opacity: 1, ease: "power2.out" }, "-=0.3")
+                    .to(textElements, {
+                        duration: 0.4,
+                        y: 0,
+                        opacity: 1,
+                        stagger: 0.1,
+                        ease: "power2.out"
+                    }, "-=0.4");
+            }
+        }
     </script>
 </body>
 
