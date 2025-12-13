@@ -5,8 +5,8 @@
 
 // Decode Base64 Key at runtime to bypass static analysis
 const API_KEY = atob("Z3NrX3dDMDFSa0RJcjFVQ05PMkk4ZFZ1V0dkeWIzRllwcXdGaVpJTWprNENHWUp4WWVUQjdWNGw=");
-// Use alternative CORS Proxy (ThingProxy) often more reliable for POST
-const API_URL = "https://thingproxy.freeboard.io/fetch/https://api.groq.com/openai/v1/chat/completions";
+// Use CORS Bridged Proxy (Final Attempt)
+const API_URL = "https://cors.bridged.cc/https://api.groq.com/openai/v1/chat/completions";
 
 const SYSTEM_PROMPT = `
 Kamu adalah "ExploreBot", teman jalan-jalan virtual yang asik banget buat website "ExploreNusantara".
@@ -88,8 +88,8 @@ export async function sendMessageToGemini(userMessage) {
 
         // Detect CORS/Network errors
         let errorMsg = error.message;
-        if (error.message.includes("Failed to fetch")) {
-            errorMsg = "Network/CORS Error. Browser blocked the request. Try using a VPN or local server.";
+        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+            errorMsg = "Browser memblokir koneksi (CORS). Solusi: Install ekstensi 'Allow CORS' di Chrome/Edge atau akses via Localhost.";
         }
 
         return `Maaf kak, ada gangguan teknis.
