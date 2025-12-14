@@ -217,7 +217,7 @@ function appendMessage(sender, text, isLoading = false) {
     const avatar = isUser
         ? '' // User doesn't need avatar in bubble, maybe? Or reuse profile.
         : `<div class="w-8 h-8 rounded-full bg-brand-cyan/20 flex items-center justify-center p-1 border border-brand-cyan flex-shrink-0">
-             <img src="./src/img/chatbot-logo.png" class="w-full h-full object-contain">
+             <img src="./logo_new.png?v=2" class="w-full h-full object-contain">
            </div>`;
 
     const bubbleColor = isUser ? 'bg-brand-cyan text-brand-navy' : 'bg-white/10 text-white border border-white/20';
