@@ -22,6 +22,8 @@
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        coolvetica: ['Coolvetica', 'sans-serif'],
+                        marons: ['Marons', 'sans-serif'],
                     }
                 }
             }
@@ -33,6 +35,10 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/coolvetica-2" rel="stylesheet">
+    <!-- Note: Marons is typically a premium/custom font. 
+         Using CDN fallback or assuming it's imported in style.css if unavailable via standard CDNs -->
+    <link href="https://fonts.cdnfonts.com/css/marons" rel="stylesheet">
 </head>
 
 <body
@@ -84,15 +90,6 @@
                 </div>
             </div>
         </nav>
-
-        <button class="relative group p-2">
-            <div
-                class="w-10 h-5 bg-gray-800 rounded-full flex items-center px-1 group-hover:bg-gray-700 transition-colors">
-                <div
-                    class="w-3 h-3 bg-brand-cyan rounded-full shadow-[0_0_8px_#16C6FF] transform translate-x-5 transition-transform">
-                </div>
-            </div>
-        </button>
     </header>
 
     <!-- Home / Beranda Section (Hero Overlay) -->
@@ -107,15 +104,14 @@
 
         <!-- Hero Content -->
         <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-[-5vh]">
-            <div
-                class="inline-block mb-4 px-4 py-1.5 rounded-full border border-brand-cyan/30 bg-brand-cyan/10 backdrop-blur-md">
-                <span class="text-brand-cyan text-xs font-bold tracking-[0.2em] uppercase">✨ Hidden Gem Hunter</span>
-            </div>
-
             <h1
-                class="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight drop-shadow-[0_0_30px_rgba(22,198,255,0.3)]">
+                class="font-coolvetica text-6xl md:text-8xl font-bold text-white mb-6 tracking-[2px] drop-shadow-[0_0_30px_rgba(22,198,255,0.3)]">
                 EXPLORE <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white">NUSANTARA</span>
+                <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white flex items-center justify-center py-4">
+                    <span class="font-marons text-[1.2em] -mr-1 leading-none pl-2">N</span>
+                    <span class="font-coolvetica">usantara</span>
+                </span>
             </h1>
 
             <p class="text-gray-300 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto font-light">
@@ -691,6 +687,12 @@
     <!-- Three.js (Global) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/OutlinePass.js"></script>
     <script src="./Src/js/map.js"></script>
 
     <!-- UI Logic Script -->
@@ -818,6 +820,53 @@
                     }
                 });
             });
+
+            // Scroll for Vibes functionality
+            homeSection.addEventListener('wheel', (e) => {
+                if (e.deltaY > 50) { // Scroll down
+                    showMap();
+                    const destLink = Array.from(navLinks).find(l => l.innerText.toUpperCase() === 'DESTINASI');
+                    if (destLink) updateActiveNav(destLink);
+                }
+            });
+            // Touch functionality (mobile scroll for vibes)
+            let touchStartY = 0;
+            homeSection.addEventListener('touchstart', e => {
+                touchStartY = e.touches[0].clientY;
+            });
+            homeSection.addEventListener('touchend', e => {
+                const touchEndY = e.changedTouches[0].clientY;
+                if (touchStartY - touchEndY > 50) { // Swipe up (scroll down effect)
+                    showMap();
+                    const destLink = Array.from(navLinks).find(l => l.innerText.toUpperCase() === 'DESTINASI');
+                    if (destLink) updateActiveNav(destLink);
+                }
+            });
+            // Theme Toggle Logic
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const themeToggleCircle = document.getElementById('theme-toggle-circle');
+            let isDarkTheme = true;
+
+            if (themeToggleBtn && themeToggleCircle) {
+                themeToggleBtn.addEventListener('click', () => {
+                    isDarkTheme = !isDarkTheme;
+                    const htmlEl = document.documentElement;
+
+                    if (isDarkTheme) {
+                        htmlEl.classList.remove('light-theme');
+                        themeToggleCircle.classList.remove('translate-x-0', 'bg-white', 'shadow-none');
+                        themeToggleCircle.classList.add('translate-x-5', 'bg-brand-cyan', 'shadow-[0_0_8px_#16C6FF]');
+
+                        if (window.mapApp) window.mapApp.setTheme('dark');
+                    } else {
+                        htmlEl.classList.add('light-theme');
+                        themeToggleCircle.classList.remove('translate-x-5', 'bg-brand-cyan', 'shadow-[0_0_8px_#16C6FF]');
+                        themeToggleCircle.classList.add('translate-x-0', 'bg-white', 'shadow-none');
+
+                        if (window.mapApp) window.mapApp.setTheme('light');
+                    }
+                });
+            }
         });
     </script>
     <!-- Chatbot Widget -->

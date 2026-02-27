@@ -135,7 +135,10 @@ class MapApp {
         this.islandsData = ISLANDS_DATA;
         this.destinationsData = DESTINATIONS_DATA;
         this.objects = [];
-        this.currentHovered = null;
+        this.currentHoveredRegion = null;
+        this.currentHoveredMaterial = null;
+        this.currentHoveredMesh = null;
+        this.islandMaterials = {};
 
         this.init();
     }
@@ -153,6 +156,25 @@ class MapApp {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.container.appendChild(this.renderer.domElement);
+
+        // Post-Processing Composer for White Map Layout/Outline
+        this.composer = new THREE.EffectComposer(this.renderer);
+
+        const renderPass = new THREE.RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderPass);
+
+        this.outlinePass = new THREE.OutlinePass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            this.scene,
+            this.camera
+        );
+        this.outlinePass.edgeStrength = 4.0;
+        this.outlinePass.edgeGlow = 0.5;
+        this.outlinePass.edgeThickness = 1.5;
+        this.outlinePass.pulsePeriod = 0;
+        this.outlinePass.visibleEdgeColor.set('#ffffff');
+        this.outlinePass.hiddenEdgeColor.set('#ffffff');
+        this.composer.addPass(this.outlinePass);
 
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
@@ -252,10 +274,15 @@ class MapApp {
                 opacity: 0.9,
                 side: THREE.DoubleSide
             });
-            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-            plane.rotation.x = -Math.PI / 2;
-            plane.position.y = -0.5;
-            this.scene.add(plane);
+            this.seaPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+            this.seaPlane.rotation.x = -Math.PI / 2;
+            this.seaPlane.position.y = -0.5;
+            this.scene.add(this.seaPlane);
+
+            // Add the map objects to the outline pass so they have the white layout
+            if (this.outlinePass) {
+                this.outlinePass.selectedObjects = this.objects;
+            }
 
             loadingDiv.remove();
         } catch (error) {
@@ -344,10 +371,7 @@ class MapApp {
 
         const geometry = new THREE.ExtrudeGeometry(shape, {
             depth: 0.2, // Thickness
-            bevelEnabled: true,
-            bevelSegments: 2,
-            bevelSize: 0.02,
-            bevelThickness: 0.02
+            bevelEnabled: false
         });
 
         // Determine Region/Island Group for Color & Data
@@ -356,13 +380,62 @@ class MapApp {
 
         const color = islandData ? islandData.color : 0x16C6FF;
 
-        const material = new THREE.MeshPhongMaterial({
-            color: 0x0A0F1F,
-            emissive: color,
-            emissiveIntensity: 0.2,
-            shininess: 50,
-            flatShading: false
-        });
+        if (!this.islandMaterials[regionId]) {
+            this.islandMaterials[regionId] = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                emissive: 0xffffff,
+                emissiveIntensity: 0.2,
+                shininess: 50,
+                flatShading: false
+            });
+
+            this.islandMaterials[regionId].onBeforeCompile = (shader) => {
+                shader.vertexShader = shader.vertexShader.replace(
+                    '#include <common>',
+                    `
+                    #include <common>
+                    varying vec3 vWorldPosition;
+                    `
+                );
+                shader.vertexShader = shader.vertexShader.replace(
+                    '#include <worldpos_vertex>',
+                    `
+                    #include <worldpos_vertex>
+                    vWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
+                    `
+                );
+
+                shader.fragmentShader = shader.fragmentShader.replace(
+                    '#include <common>',
+                    `
+                    #include <common>
+                    varying vec3 vWorldPosition;
+                    `
+                );
+
+                // Apply Red-White gradient
+                shader.fragmentShader = shader.fragmentShader.replace(
+                    '#include <emissivemap_fragment>',
+                    `
+                    #include <emissivemap_fragment>
+                    
+                    // Z goes roughly from -5 (North) to +5 (South)
+                    float mixVal = smoothstep(-2.0, 2.0, vWorldPosition.z);
+                    vec3 merah = vec3(0.9, 0.05, 0.1);  // Red
+                    vec3 putih = vec3(0.95, 0.95, 0.95); // White
+                    vec3 gradientColor = mix(merah, putih, mixVal);
+                    
+                    // Set base diffuse darker
+                    diffuseColor.rgb = gradientColor * 0.25; 
+                    
+                    // Apply gradient to emissive uniformly
+                    totalEmissiveRadiance = gradientColor * emissive;
+                    `
+                );
+            };
+        }
+
+        const material = this.islandMaterials[regionId];
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.x = -Math.PI / 2; // Lay flat (Front face up, North away from camera)
@@ -424,14 +497,16 @@ class MapApp {
             const object = intersects[0].object;
             const data = object.userData;
 
-            if (this.currentHovered !== object) {
+            if (this.currentHoveredRegion !== data.id) {
                 // Dim previous
-                if (this.currentHovered) {
-                    gsap.to(this.currentHovered.material, { emissiveIntensity: 0.2 });
+                if (this.currentHoveredMaterial) {
+                    gsap.to(this.currentHoveredMaterial, { emissiveIntensity: 0.2, duration: 0.3 });
                     this.tooltip.style.opacity = 0;
                 }
 
-                this.currentHovered = object;
+                this.currentHoveredRegion = data.id;
+                this.currentHoveredMaterial = object.material;
+                this.currentHoveredMesh = object;
                 document.body.style.cursor = 'pointer';
 
                 // Glow current
@@ -439,15 +514,17 @@ class MapApp {
 
                 // Tooltip
                 if (this.tooltipTitle) {
-                    // Show Province name if available, else Island name
-                    this.tooltipTitle.innerText = data.province ? `${data.province}` : data.name;
+                    // Show Island name only
+                    this.tooltipTitle.innerText = data.name;
                 }
                 if (this.tooltip) this.tooltip.style.opacity = 1;
             }
         } else {
-            if (this.currentHovered) {
-                gsap.to(this.currentHovered.material, { emissiveIntensity: 0.2, duration: 0.3 });
-                this.currentHovered = null;
+            if (this.currentHoveredRegion) {
+                gsap.to(this.currentHoveredMaterial, { emissiveIntensity: 0.2, duration: 0.3 });
+                this.currentHoveredRegion = null;
+                this.currentHoveredMaterial = null;
+                this.currentHoveredMesh = null;
                 document.body.style.cursor = 'default';
                 if (this.tooltip) this.tooltip.style.opacity = 0;
             }
@@ -455,26 +532,32 @@ class MapApp {
     }
 
     onMouseClick(event) {
-        if (this.currentHovered) {
-            const data = this.currentHovered.userData;
+        if (this.currentHoveredRegion) {
+            const data = this.currentHoveredMesh.userData;
             // Only open panel if we have data for this region
             if (data.id && data.id !== "other") {
                 this.openPanel(data.id, data.name);
 
                 // --- ZOOM TO ISLAND LOGIC ---
-                const mesh = this.currentHovered;
+                // Calculate bounding box of all meshes in the region
+                const regionMeshes = this.objects.filter(obj => obj.userData.id === data.id);
+                const combinedBoundingBox = new THREE.Box3();
+                regionMeshes.forEach(mesh => {
+                    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+                    const box = mesh.geometry.boundingBox.clone();
+                    box.applyMatrix4(mesh.matrixWorld);
+                    combinedBoundingBox.union(box);
+                });
 
-                // Calculate center of the mesh in World Coordinates
-                if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
                 const center = new THREE.Vector3();
-                mesh.geometry.boundingBox.getCenter(center);
-                mesh.localToWorld(center);
+                combinedBoundingBox.getCenter(center);
 
-                // Define offset for the camera (how close to zoom)
-                // Adjust these values based on preference. 
-                // Since map is flat on XZ plane, we want to be above (Y) and south (Z) of it.
-                const zoomOffset = 8; // Distance from center
-                const heightOffset = 5; // Height above map
+                // Adjust zoom based on the size of the island
+                const size = new THREE.Vector3();
+                combinedBoundingBox.getSize(size);
+                const maxDim = Math.max(size.x, size.z);
+                const zoomOffset = Math.max(8, maxDim * 0.8);
+                const heightOffset = Math.max(5, maxDim * 0.5);
 
                 gsap.to(this.camera.position, {
                     duration: 1.5,
@@ -566,6 +649,22 @@ class MapApp {
         }
 
         this.togglePanel(true);
+    }
+
+    setTheme(theme) {
+        if (theme === 'light') {
+            this.scene.background = new THREE.Color(0xf8fafc);
+            this.scene.fog.color = new THREE.Color(0xf8fafc);
+            if (this.seaPlane) {
+                this.seaPlane.material.color = new THREE.Color(0xe2e8f0);
+            }
+        } else {
+            this.scene.background = new THREE.Color(0x0A0F1F);
+            this.scene.fog.color = new THREE.Color(0x0A0F1F);
+            if (this.seaPlane) {
+                this.seaPlane.material.color = new THREE.Color(0x050810);
+            }
+        }
     }
 
     showDestinationDetail(dest) {
@@ -694,13 +793,20 @@ class MapApp {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (this.composer) {
+            this.composer.setSize(window.innerWidth, window.innerHeight);
+        }
     }
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
 
         this.controls.update();
-        this.renderer.render(this.scene, this.camera);
+        if (this.composer) {
+            this.composer.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 }
 
