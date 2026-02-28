@@ -137,6 +137,8 @@ class MapApp {
         this.objects = [];
         this.currentHovered = null;
 
+        this.animate = this.animate.bind(this); // Pre-bound to prevent GC leak in requestAnimationFrame
+
         this.init();
     }
 
@@ -466,13 +468,13 @@ class MapApp {
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        gsap.to(this.tooltip, {
-            left: event.clientX + 15,
-            top: event.clientY + 15,
-            duration: 0.2
-        });
+        // Performant direct placement. Avoids GC bloat from calling gsap.to() per mousemove tick.
+        if (this.tooltip && this.tooltip.style.opacity > 0) {
+            this.tooltip.style.left = (event.clientX + 15) + 'px';
+            this.tooltip.style.top = (event.clientY + 15) + 'px';
+        }
 
-        this.raycast();
+        // Raycasting moved to animate() loop
     }
 
     raycast() {
@@ -782,7 +784,10 @@ class MapApp {
     }
 
     animate() {
-        requestAnimationFrame(this.animate.bind(this));
+        requestAnimationFrame(this.animate);
+
+        // Calculate raycast once per frame (60hz limit) instead of via raw mousemove (could be > 1000hz limit)
+        this.raycast();
 
         // Animate Shimmering Red Borders
         if (this.borderMaterials) {
