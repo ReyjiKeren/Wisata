@@ -392,60 +392,16 @@ class MapApp {
         const regionId = this.getRegionIdFromName(name);
         const islandData = this.islandsData.find(i => i.id === regionId);
 
-        const color = islandData ? islandData.color : 0x16C6FF;
+        const darkElegantBronze = 0x1A1500; // Sangat gelap (dark bronze/gold base)
+        const faintGoldGlow = 0x332600;
 
         const material = new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            emissive: 0xffffff,
-            emissiveIntensity: 0.2,
-            shininess: 50,
+            color: new THREE.Color(darkElegantBronze),
+            emissive: new THREE.Color(faintGoldGlow),
+            emissiveIntensity: 0.2, // Cahaya yang dipancarkan sangat tipis
+            shininess: 15,          // Berkurang jauh agar pantulan cahaya tidak menyilaukan
             flatShading: false
         });
-
-        material.onBeforeCompile = (shader) => {
-            shader.vertexShader = shader.vertexShader.replace(
-                '#include <common>',
-                `
-                #include <common>
-                varying vec3 vWorldPosition;
-                `
-            );
-            shader.vertexShader = shader.vertexShader.replace(
-                '#include <worldpos_vertex>',
-                `
-                #include <worldpos_vertex>
-                vWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
-                `
-            );
-
-            shader.fragmentShader = shader.fragmentShader.replace(
-                '#include <common>',
-                `
-                #include <common>
-                varying vec3 vWorldPosition;
-                `
-            );
-
-            // Apply Red-White gradient
-            shader.fragmentShader = shader.fragmentShader.replace(
-                '#include <emissivemap_fragment>',
-                `
-                #include <emissivemap_fragment>
-                
-                // Z goes roughly from -5 (North) to +5 (South)
-                float mixVal = smoothstep(-2.0, 2.0, vWorldPosition.z);
-                vec3 merah = vec3(0.9, 0.05, 0.1);  // Red
-                vec3 putih = vec3(0.95, 0.95, 0.95); // White
-                vec3 gradientColor = mix(merah, putih, mixVal);
-                
-                // Set base diffuse darker
-                diffuseColor.rgb = gradientColor * 0.25; 
-                
-                // Apply gradient to emissive uniformly
-                totalEmissiveRadiance = gradientColor * emissive;
-                `
-            );
-        };
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.x = -Math.PI / 2; // Lay flat (Front face up, North away from camera)
@@ -453,9 +409,9 @@ class MapApp {
         // Create a thin border for each province
         const borderGeo = new THREE.BufferGeometry().setFromPoints(shape.getPoints());
         const borderMat = new THREE.LineBasicMaterial({
-            color: 0xffd700, // Bright Gold
+            color: 0xff003f, // Merah Terang
             transparent: true,
-            opacity: 0.3
+            opacity: 0.4
         });
         const borderLine = new THREE.Line(borderGeo, borderMat);
         borderLine.position.z = 0.205; // Slightly above the extruded depth (0.2) to prevent z-fighting
@@ -465,9 +421,9 @@ class MapApp {
         if (!this.borderMaterials) this.borderMaterials = [];
         this.borderMaterials.push({
             material: borderMat,
-            baseOpacity: 0.3,
+            baseOpacity: 0.4,
             phase: Math.random() * Math.PI * 2,
-            speed: 2.5 + Math.random() * 1.5
+            speed: 3.0 + Math.random() * 2.0 // Efek loop shimmer lebih dinamis
         });
 
         mesh.userData = {
@@ -537,8 +493,8 @@ class MapApp {
                 this.currentHovered = object;
                 document.body.style.cursor = 'pointer';
 
-                // Glow current
-                gsap.to(object.material, { emissiveIntensity: 0.8, duration: 0.3 });
+                // Glow current (Sangat Terang)
+                gsap.to(object.material, { emissiveIntensity: 2.5, duration: 0.3 });
 
                 // Tooltip
                 if (this.tooltipTitle) {
@@ -828,12 +784,12 @@ class MapApp {
     animate() {
         requestAnimationFrame(this.animate.bind(this));
 
-        // Animate Shimmering Golden Borders
+        // Animate Shimmering Red Borders
         if (this.borderMaterials) {
             const time = performance.now() * 0.001;
             this.borderMaterials.forEach(b => {
                 const shimmer = (Math.sin(time * b.speed + b.phase) + 1) * 0.5; // 0.0 to 1.0
-                b.material.opacity = b.baseOpacity + shimmer * 0.5; // Pulse opacity between base and bright
+                b.material.opacity = b.baseOpacity + shimmer * 0.6; // Pulse opacity between base and fully bright
             });
         }
 
