@@ -671,7 +671,7 @@
             </div>
 
             <button
-                onclick="document.getElementById('chat-toggle-btn').click(); setTimeout(() => { const input = document.getElementById('chat-input'); if(input) { input.value = 'Tolong ceritakan lebih detail tentang daerah ' + document.getElementById('panel-title').innerText + '! 🎉'; input.focus(); document.getElementById('chat-send-btn').click(); } }, 400)"
+                onclick="const cp = document.getElementById('close-panel'); if(cp) cp.click(); setTimeout(() => { document.getElementById('chat-toggle-btn').click(); setTimeout(() => { const input = document.getElementById('chat-input'); if(input) { input.value = 'Tolong ceritakan lebih detail tentang daerah ' + document.getElementById('panel-title').innerText + '! 🎉'; document.getElementById('chat-send-btn').click(); } }, 200) }, 300)"
                 class="w-full mt-8 relative bg-brand-cyan text-brand-navy font-bold text-sm md:text-base uppercase tracking-widest py-4 rounded-xl hover:bg-white transition-colors duration-300 shadow-[0_4px_20px_rgba(22,198,255,0.4)] flex justify-center items-center group">
                 <span class="mr-6">LIHAT DETAIL LENGKAP</span>
                 <div
@@ -897,7 +897,7 @@
 
         <!-- Chat Window -->
         <div id="chat-widget"
-            class="hidden absolute bottom-20 right-0 w-80 md:w-96 h-[500px] glass-panel bg-brand-navy/90 border border-brand-cyan/30 rounded-2xl overflow-hidden flex flex-col shadow-2xl origin-bottom-right transition-all duration-300 backdrop-blur-xl">
+            class="hidden fixed bottom-6 sm:absolute sm:bottom-20 right-4 sm:-right-2 w-[calc(100vw-32px)] sm:w-80 md:w-96 max-w-[400px] h-[75vh] sm:h-[500px] max-h-[500px] glass-panel bg-brand-navy/95 border border-brand-cyan/30 rounded-2xl overflow-hidden flex flex-col shadow-2xl sm:origin-bottom-right origin-bottom transition-all duration-300 backdrop-blur-xl z-[1001]">
 
             <!-- Header -->
             <div class="p-4 bg-brand-cyan/10 border-b border-brand-cyan/20 flex justify-between items-center">
