@@ -453,13 +453,22 @@ class MapApp {
         // Create a thin border for each province
         const borderGeo = new THREE.BufferGeometry().setFromPoints(shape.getPoints());
         const borderMat = new THREE.LineBasicMaterial({
-            color: 0xffffff,
+            color: 0xffd700, // Bright Gold
             transparent: true,
-            opacity: 0.15
+            opacity: 0.3
         });
         const borderLine = new THREE.Line(borderGeo, borderMat);
         borderLine.position.z = 0.205; // Slightly above the extruded depth (0.2) to prevent z-fighting
         mesh.add(borderLine);
+
+        // Store for shimmer animation
+        if (!this.borderMaterials) this.borderMaterials = [];
+        this.borderMaterials.push({
+            material: borderMat,
+            baseOpacity: 0.3,
+            phase: Math.random() * Math.PI * 2,
+            speed: 2.5 + Math.random() * 1.5
+        });
 
         mesh.userData = {
             id: regionId, // Use the region ID (e.g., 'sumatra') rather than province name for the main logic
@@ -818,6 +827,15 @@ class MapApp {
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
+
+        // Animate Shimmering Golden Borders
+        if (this.borderMaterials) {
+            const time = performance.now() * 0.001;
+            this.borderMaterials.forEach(b => {
+                const shimmer = (Math.sin(time * b.speed + b.phase) + 1) * 0.5; // 0.0 to 1.0
+                b.material.opacity = b.baseOpacity + shimmer * 0.5; // Pulse opacity between base and bright
+            });
+        }
 
         this.controls.update();
         if (this.composer) {
