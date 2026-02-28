@@ -43,6 +43,7 @@
 
 <body
     class="bg-brand-navy text-white overflow-hidden h-screen w-screen selection:bg-brand-cyan selection:text-brand-navy">
+    <div id="toast-container" class="fixed top-24 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Header -->
     <header
@@ -978,7 +979,7 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Auth Logic -->
-    <script src="./Src/js/auth.js"></script>
+    <script src="./src/js/auth.js"></script>
 
     <!-- Chatbot Logic -->
     <script type="module" src="./Src/js/chatbot.js"></script>
