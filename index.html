@@ -50,9 +50,16 @@
         <div class="flex items-center gap-3">
             <img src="./logo_new.png?v=2" alt="Logo"
                 class="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(22,198,255,0.5)]">
-            <h1
-                class="text-xl font-bold tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white">
-                ExploreNusantara</h1>
+            <div class="flex flex-col justify-center">
+                <h1
+                    class="text-xl font-bold tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-white leading-none mb-0.5">
+                    ExploreNusantara</h1>
+                <span
+                    class="text-[10px] text-brand-cyan/80 tracking-widest font-bold flex items-center gap-1 mt-0.5">By.
+                    <span
+                        class="italic text-white text-[13px] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] tracking-widest">JIZENJI</span>
+                </span>
+            </div>
         </div>
 
         <nav class="hidden md:flex gap-8 items-center">
@@ -664,10 +671,16 @@
             </div>
 
             <button
-                class="w-full mt-8 py-4 bg-transparent border border-brand-cyan text-brand-cyan font-bold uppercase tracking-widest hover:bg-brand-cyan hover:text-brand-navy transition-all duration-300 rounded-lg group overflow-hidden relative">
-                <span class="relative z-10">Lihat Detail Lengkap</span>
+                onclick="document.getElementById('chat-toggle-btn').click(); setTimeout(() => { const input = document.getElementById('chat-input'); if(input) { input.value = 'Tolong ceritakan lebih detail tentang daerah ' + document.getElementById('panel-title').innerText + '! 🎉'; input.focus(); document.getElementById('chat-send-btn').click(); } }, 400)"
+                class="w-full mt-8 relative bg-brand-cyan text-brand-navy font-bold text-sm md:text-base uppercase tracking-widest py-4 rounded-xl hover:bg-white transition-colors duration-300 shadow-[0_4px_20px_rgba(22,198,255,0.4)] flex justify-center items-center group">
+                <span class="mr-6">LIHAT DETAIL LENGKAP</span>
                 <div
-                    class="absolute inset-0 bg-brand-cyan transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 -z-0">
+                    class="absolute -right-3 top-1/2 transform -translate-y-1/2 bg-brand-cyan text-brand-navy p-2 rounded-xl border-4 border-brand-navy group-hover:bg-white group-hover:border-gray-100 transition-colors shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
                 </div>
             </button>
         </div>

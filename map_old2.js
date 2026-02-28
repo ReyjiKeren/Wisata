@@ -1,4 +1,4 @@
-// Imports removed for global script usage
+﻿// Imports removed for global script usage
 
 const ISLANDS_DATA = [
     {
@@ -154,25 +154,6 @@ class MapApp {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.container.appendChild(this.renderer.domElement);
 
-        // Post-Processing Composer for White Map Layout/Outline
-        this.composer = new THREE.EffectComposer(this.renderer);
-
-        const renderPass = new THREE.RenderPass(this.scene, this.camera);
-        this.composer.addPass(renderPass);
-
-        this.outlinePass = new THREE.OutlinePass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            this.scene,
-            this.camera
-        );
-        this.outlinePass.edgeStrength = 4.0;
-        this.outlinePass.edgeGlow = 0.5;
-        this.outlinePass.edgeThickness = 1.5;
-        this.outlinePass.pulsePeriod = 0;
-        this.outlinePass.visibleEdgeColor.set('#ffffff');
-        this.outlinePass.hiddenEdgeColor.set('#ffffff');
-        this.composer.addPass(this.outlinePass);
-
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
@@ -203,15 +184,6 @@ class MapApp {
         window.addEventListener('resize', this.onWindowResize.bind(this));
         window.addEventListener('mousemove', this.onMouseMove.bind(this));
         window.addEventListener('click', this.onMouseClick.bind(this));
-
-        // Touch events for mobile to update raycaster position before click might trigger
-        window.addEventListener('touchstart', (event) => {
-            if (event.touches.length > 0) {
-                this.mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-                this.mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-                // Don't raycast or click yet, let the native 'click' event handle the action to avoid firing during map pans.
-            }
-        }, { passive: true });
 
         // UI
         this.setupUIEvents();
@@ -280,15 +252,10 @@ class MapApp {
                 opacity: 0.9,
                 side: THREE.DoubleSide
             });
-            this.seaPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-            this.seaPlane.rotation.x = -Math.PI / 2;
-            this.seaPlane.position.y = -0.5;
-            this.scene.add(this.seaPlane);
-
-            // Add the map objects to the outline pass so they have the white layout
-            if (this.outlinePass) {
-                this.outlinePass.selectedObjects = this.objects;
-            }
+            const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotation.x = -Math.PI / 2;
+            plane.position.y = -0.5;
+            this.scene.add(plane);
 
             loadingDiv.remove();
         } catch (error) {
@@ -377,7 +344,10 @@ class MapApp {
 
         const geometry = new THREE.ExtrudeGeometry(shape, {
             depth: 0.2, // Thickness
-            bevelEnabled: false
+            bevelEnabled: true,
+            bevelSegments: 2,
+            bevelSize: 0.02,
+            bevelThickness: 0.02
         });
 
         // Determine Region/Island Group for Color & Data
@@ -387,71 +357,15 @@ class MapApp {
         const color = islandData ? islandData.color : 0x16C6FF;
 
         const material = new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            emissive: 0xffffff,
+            color: 0x0A0F1F,
+            emissive: color,
             emissiveIntensity: 0.2,
             shininess: 50,
             flatShading: false
         });
 
-        material.onBeforeCompile = (shader) => {
-            shader.vertexShader = shader.vertexShader.replace(
-                '#include <common>',
-                `
-                #include <common>
-                varying vec3 vWorldPosition;
-                `
-            );
-            shader.vertexShader = shader.vertexShader.replace(
-                '#include <worldpos_vertex>',
-                `
-                #include <worldpos_vertex>
-                vWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;
-                `
-            );
-
-            shader.fragmentShader = shader.fragmentShader.replace(
-                '#include <common>',
-                `
-                #include <common>
-                varying vec3 vWorldPosition;
-                `
-            );
-
-            // Apply Red-White gradient
-            shader.fragmentShader = shader.fragmentShader.replace(
-                '#include <emissivemap_fragment>',
-                `
-                #include <emissivemap_fragment>
-                
-                // Z goes roughly from -5 (North) to +5 (South)
-                float mixVal = smoothstep(-2.0, 2.0, vWorldPosition.z);
-                vec3 merah = vec3(0.9, 0.05, 0.1);  // Red
-                vec3 putih = vec3(0.95, 0.95, 0.95); // White
-                vec3 gradientColor = mix(merah, putih, mixVal);
-                
-                // Set base diffuse darker
-                diffuseColor.rgb = gradientColor * 0.25; 
-                
-                // Apply gradient to emissive uniformly
-                totalEmissiveRadiance = gradientColor * emissive;
-                `
-            );
-        };
-
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.x = -Math.PI / 2; // Lay flat (Front face up, North away from camera)
-
-        // Create a thin border for each province
-        const borderGeo = new THREE.BufferGeometry().setFromPoints(shape.getPoints());
-        const borderMat = new THREE.LineBasicMaterial({
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.15
-        });
-        const borderLine = new THREE.Line(borderGeo, borderMat);
-        borderLine.position.z = 0.205; // Slightly above the extruded depth (0.2) to prevent z-fighting
-        mesh.add(borderLine);
 
         mesh.userData = {
             id: regionId, // Use the region ID (e.g., 'sumatra') rather than province name for the main logic
@@ -513,7 +427,7 @@ class MapApp {
             if (this.currentHovered !== object) {
                 // Dim previous
                 if (this.currentHovered) {
-                    gsap.to(this.currentHovered.material, { emissiveIntensity: 0.2, duration: 0.3 });
+                    gsap.to(this.currentHovered.material, { emissiveIntensity: 0.2 });
                     this.tooltip.style.opacity = 0;
                 }
 
@@ -525,8 +439,8 @@ class MapApp {
 
                 // Tooltip
                 if (this.tooltipTitle) {
-                    // Show Province name
-                    this.tooltipTitle.innerText = data.province ? data.province : data.name;
+                    // Show Province name if available, else Island name
+                    this.tooltipTitle.innerText = data.province ? `${data.province}` : data.name;
                 }
                 if (this.tooltip) this.tooltip.style.opacity = 1;
             }
@@ -541,22 +455,13 @@ class MapApp {
     }
 
     onMouseClick(event) {
-        // Ensure accurate mouse position for touch/click events before picking
-        if (event && event.clientX !== undefined && event.clientY !== undefined) {
-            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        }
-
-        // Perform raycast exactly at the clicked/tapped location right now
-        this.raycast();
-
         if (this.currentHovered) {
             const data = this.currentHovered.userData;
             // Only open panel if we have data for this region
             if (data.id && data.id !== "other") {
-                this.openPanel(data.id, data.province);
+                this.openPanel(data.id, data.name);
 
-                // --- ZOOM TO PROVINCE LOGIC ---
+                // --- ZOOM TO ISLAND LOGIC ---
                 const mesh = this.currentHovered;
 
                 // Calculate center of the mesh in World Coordinates
@@ -566,8 +471,10 @@ class MapApp {
                 mesh.localToWorld(center);
 
                 // Define offset for the camera (how close to zoom)
-                const zoomOffset = 8;
-                const heightOffset = 5;
+                // Adjust these values based on preference. 
+                // Since map is flat on XZ plane, we want to be above (Y) and south (Z) of it.
+                const zoomOffset = 8; // Distance from center
+                const heightOffset = 5; // Height above map
 
                 gsap.to(this.camera.position, {
                     duration: 1.5,
@@ -578,7 +485,7 @@ class MapApp {
                     onUpdate: () => this.controls.update()
                 });
 
-                // Animate controls target to look at the center
+                // Animate controls target to look at the island center
                 gsap.to(this.controls.target, {
                     duration: 1.5,
                     x: center.x,
@@ -659,22 +566,6 @@ class MapApp {
         }
 
         this.togglePanel(true);
-    }
-
-    setTheme(theme) {
-        if (theme === 'light') {
-            this.scene.background = new THREE.Color(0xf8fafc);
-            this.scene.fog.color = new THREE.Color(0xf8fafc);
-            if (this.seaPlane) {
-                this.seaPlane.material.color = new THREE.Color(0xe2e8f0);
-            }
-        } else {
-            this.scene.background = new THREE.Color(0x0A0F1F);
-            this.scene.fog.color = new THREE.Color(0x0A0F1F);
-            if (this.seaPlane) {
-                this.seaPlane.material.color = new THREE.Color(0x050810);
-            }
-        }
     }
 
     showDestinationDetail(dest) {
@@ -803,20 +694,13 @@ class MapApp {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        if (this.composer) {
-            this.composer.setSize(window.innerWidth, window.innerHeight);
-        }
     }
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
 
         this.controls.update();
-        if (this.composer) {
-            this.composer.render();
-        } else {
-            this.renderer.render(this.scene, this.camera);
-        }
+        this.renderer.render(this.scene, this.camera);
     }
 }
 
