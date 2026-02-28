@@ -272,7 +272,7 @@ async function signInWithGoogle() {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'https://reyjikeren.github.io/Wisata/'
+            redirectTo: window.location.origin + window.location.pathname
         }
     });
 
