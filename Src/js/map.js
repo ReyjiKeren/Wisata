@@ -202,16 +202,24 @@ class MapApp {
         // Events
         window.addEventListener('resize', this.onWindowResize.bind(this));
         window.addEventListener('mousemove', this.onMouseMove.bind(this));
-        window.addEventListener('click', this.onMouseClick.bind(this));
 
-        // Touch events for mobile to update raycaster position before click might trigger
-        window.addEventListener('touchstart', (event) => {
-            if (event.touches.length > 0) {
-                this.mouse.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-                this.mouse.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-                // Don't raycast or click yet, let the native 'click' event handle the action to avoid firing during map pans.
+        // Touch/Click handling for accurate mobile interaction (bypassing orbit control conflicts)
+        const canvas = this.renderer.domElement;
+        canvas.addEventListener('pointerdown', (event) => {
+            this.touchStartX = event.clientX;
+            this.touchStartY = event.clientY;
+        });
+
+        canvas.addEventListener('pointerup', (event) => {
+            const dx = event.clientX - this.touchStartX;
+            const dy = event.clientY - this.touchStartY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // If movement is minimal, consider it an intentional tap/click
+            if (distance < 10) {
+                this.onMouseClick(event);
             }
-        }, { passive: true });
+        });
 
         // UI
         this.setupUIEvents();
