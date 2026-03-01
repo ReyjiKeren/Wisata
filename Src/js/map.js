@@ -408,26 +408,34 @@ class MapApp {
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.x = -Math.PI / 2; // Lay flat (Front face up, North away from camera)
 
-        // Create a single bright border for each province
+        // Create a thick-looking border using 5 layered lines with ultra-tight offsets (0.01)
         const borderGeo = new THREE.BufferGeometry().setFromPoints(shape.getPoints());
         const borderMat = new THREE.LineBasicMaterial({
             color: 0xff003f, // Merah Terang
             transparent: true,
-            opacity: 1 // Maksimal agar glow/shimmer terlihat mencolok
+            opacity: 1.0
         });
-        const borderLine = new THREE.Line(borderGeo, borderMat);
-        borderLine.position.z = 0.205;
 
-        // Note: Ketebalan garis di WebGL sayangnya dikunci secara *hardcode* di 1px oleh arsitektur dasar GPU browser.
-        mesh.add(borderLine);
+        // 5 Lines Stacked tightly (1 Middle, 4 Diagonal Offsets)
+        const mainLine = new THREE.Line(borderGeo, borderMat);
+        mainLine.position.z = 0.205;
+        mesh.add(mainLine);
 
-        // Store for shimmer animation with White Color blending
+        const tinyOffset = 0.01; // Rapat agar tidak pecah/berbayang
+        const offsets = [{ x: tinyOffset, y: tinyOffset }, { x: -tinyOffset, y: tinyOffset }, { x: tinyOffset, y: -tinyOffset }, { x: -tinyOffset, y: -tinyOffset }];
+        offsets.forEach(off => {
+            const bLine = new THREE.Line(borderGeo, borderMat);
+            bLine.position.set(off.x, off.y, 0.205);
+            mesh.add(bLine);
+        });
+
+        // Store for shimmer animation 
         if (!this.borderMaterials) this.borderMaterials = [];
         this.borderMaterials.push({
             material: borderMat,
-            baseOpacity: 0.8,
+            baseOpacity: 1.0,
             phase: Math.random() * Math.PI * 2,
-            speed: 3.0 + Math.random() * 2.0 // Efek loop shimmer lebih dinamis
+            speed: 3.0 + Math.random() * 2.0
         });
 
         mesh.userData = {
