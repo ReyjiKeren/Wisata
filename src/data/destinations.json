@@ -1,0 +1,172 @@
+{
+    "sumatra": [
+        {
+            "name": "Lake Toba",
+            "type": "Nature"
+        },
+        {
+            "name": "Bukit Lawang",
+            "type": "Wildlife"
+        },
+        {
+            "name": "Mentawai Islands",
+            "type": "Surf"
+        },
+        {
+            "name": "Ngarai Sianok",
+            "type": "Nature"
+        },
+        {
+            "name": "Palembang",
+            "type": "City"
+        }
+    ],
+    "java": [
+        {
+            "name": "Borobudur Temple",
+            "type": "Culture"
+        },
+        {
+            "name": "Mount Bromo",
+            "type": "Adventure"
+        },
+        {
+            "name": "Yogyakarta",
+            "type": "City"
+        },
+        {
+            "name": "Kawah Ijen",
+            "type": "Nature"
+        },
+        {
+            "name": "Prambanan",
+            "type": "Culture"
+        }
+    ],
+    "kalimantan": [
+        {
+            "name": "Tanjung Puting",
+            "type": "Wildlife"
+        },
+        {
+            "name": "Derawan Islands",
+            "type": "Marine"
+        },
+        {
+            "name": "Floating Market",
+            "type": "Culture"
+        },
+        {
+            "name": "Kekah Island",
+            "type": "Nature"
+        }
+    ],
+    "sulawesi": [
+        {
+            "name": "Tana Toraja",
+            "type": "Culture"
+        },
+        {
+            "name": "Bunaken Marine Park",
+            "type": "Diving"
+        },
+        {
+            "name": "Wakatobi",
+            "type": "Nature"
+        },
+        {
+            "name": "Togean Islands",
+            "type": "Marine"
+        }
+    ],
+    "bali": [
+        {
+            "name": "Ubud",
+            "type": "Culture"
+        },
+        {
+            "name": "Uluwatu",
+            "type": "Beach"
+        },
+        {
+            "name": "Nusa Penida",
+            "type": "Island"
+        },
+        {
+            "name": "Seminyak",
+            "type": "Lifestyle"
+        },
+        {
+            "name": "Tanah Lot",
+            "type": "Temple"
+        }
+    ],
+    "lombok": [
+        {
+            "name": "Mount Rinjani",
+            "type": "Adventure"
+        },
+        {
+            "name": "Gili Trawangan",
+            "type": "Party"
+        },
+        {
+            "name": "Pink Beach",
+            "type": "Nature"
+        },
+        {
+            "name": "Sade Village",
+            "type": "Culture"
+        }
+    ],
+    "flores": [
+        {
+            "name": "Komodo National Park",
+            "type": "Wildlife"
+        },
+        {
+            "name": "Kelimutu Lakes",
+            "type": "Nature"
+        },
+        {
+            "name": "Labuan Bajo",
+            "type": "Gateway"
+        },
+        {
+            "name": "Wae Rebo",
+            "type": "Culture"
+        }
+    ],
+    "maluku": [
+        {
+            "name": "Banda Neira",
+            "type": "History"
+        },
+        {
+            "name": "Ora Beach",
+            "type": "Nature"
+        },
+        {
+            "name": "Kei Islands",
+            "type": "Beach"
+        }
+    ],
+    "papua": [
+        {
+            "name": "Raja Ampat",
+            "type": "Diving"
+        },
+        {
+            "name": "Baliem Valley",
+            "type": "Culture"
+        },
+        {
+            "name": "Cendrawasih Bay",
+            "type": "Nature"
+        },
+        {
+            "name": "Jayapura",
+            "type": "City"
+        }
+    ]
+}
