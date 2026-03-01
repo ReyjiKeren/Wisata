@@ -4,11 +4,11 @@ const SUPABASE_URL = 'https://qfjmcgmjziequxqzfnyv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_w65BEB6MsEiDrFYdYBLaGg_CXCsZZ47';
 
 // Check if Supabase is loaded from CDN
-let supabase;
+let supabaseClient;
 
 try {
     if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } else {
         console.warn('Supabase SDK not loaded.');
     }
@@ -78,7 +78,7 @@ function showLogin() {
 
 // Auth Functions
 async function signUp() {
-    if (!supabase) return showToast('Supabase not configured.', 'error');
+    if (!supabaseClient) return showToast('Supabase not configured.', 'error');
 
     // Get values from Register Form
     const name = document.getElementById('reg-name').value;
@@ -92,7 +92,7 @@ async function signUp() {
     showToast('Sedang mendaftarkan...', 'info');
 
     // SignUp with metadata
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
@@ -118,7 +118,7 @@ async function signUp() {
 }
 
 async function signIn() {
-    if (!supabase) return showToast('Supabase not configured.', 'error');
+    if (!supabaseClient) return showToast('Supabase not configured.', 'error');
 
     // Get values from Login Form
     const email = document.getElementById('login-email').value;
@@ -130,7 +130,7 @@ async function signIn() {
 
     showToast('Sedang login...', 'info');
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
         password,
     });
@@ -144,8 +144,8 @@ async function signIn() {
 }
 
 async function signOut() {
-    if (!supabase) return;
-    const { error } = await supabase.auth.signOut();
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
     if (error) showToast('Gagal logout: ' + error.message, 'error');
     else showToast('Berhasil Logout. Sampai jumpa! 👋', 'info');
     updateUI(null);
@@ -253,7 +253,7 @@ function updateUI(user) {
 
 // Listen to Auth State Changes
 if (supabase) {
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
         updateUI(session?.user ?? null);
 
         // Show success notification only on fresh login if profile is already complete
@@ -265,11 +265,11 @@ if (supabase) {
 
 // Google Login
 async function signInWithGoogle() {
-    if (!supabase) return showToast('Supabase not configured.', 'error');
+    if (!supabaseClient) return showToast('Supabase not configured.', 'error');
 
     showToast('Mengarahkan ke Google...', 'info');
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
             redirectTo: window.location.origin + window.location.pathname
@@ -296,12 +296,12 @@ window.authParams = {
 };
 
 async function fetchMembers() {
-    if (!supabase || !uiAdminMemberList) return;
+    if (!supabaseClientClient || !uiAdminMemberList) return;
 
     uiAdminMemberList.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Loading...</td></tr>';
 
     // Fetch from 'profiles' table
-    const { data: profiles, error } = await supabase
+    const { data: profiles, error } = await supabaseClient
         .from('profiles')
         .select('*');
 
@@ -353,7 +353,7 @@ async function uploadAvatar(file) {
     const filePath = `${fileName}`;
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabaseClient.storage
         .from('avatars') // Ensure 'avatars' bucket exists in Supabase
         .upload(filePath, file);
 
@@ -363,14 +363,14 @@ async function uploadAvatar(file) {
     }
 
     // Get Public URL
-    const { data: publicUrlData } = supabase.storage
+    const { data: publicUrlData } = supabaseClient.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
     const publicAvatarUrl = publicUrlData.publicUrl;
 
     // Update User Metadata (Use custom key to avoid OAuth overwrite)
-    const { error: updateError } = await supabase.auth.updateUser({
+    const { error: updateError } = await supabaseClient.auth.updateUser({
         data: { custom_avatar_url: publicAvatarUrl }
     });
 
@@ -396,7 +396,7 @@ function showEditProfile() {
 
 // Update Profile Name
 async function updateProfileName() {
-    if (!supabase) return;
+    if (!supabaseClientClient) return;
     const newName = inputDisplayName.value.trim();
 
     if (!newName) {
@@ -405,7 +405,7 @@ async function updateProfileName() {
 
     showToast('Menyimpan profil...', 'info');
 
-    const { data, error } = await supabase.auth.updateUser({
+    const { data, error } = await supabaseClient.auth.updateUser({
         data: { custom_display_name: newName }
     });
 
