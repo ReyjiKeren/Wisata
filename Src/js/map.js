@@ -151,9 +151,10 @@ class MapApp {
         this.camera.position.set(0, 10, 20);
         this.camera.lookAt(0, 0, 0);
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // Batasi pixel ratio maksimal 1.25 untuk menghindari beratnya Post-Processing di HP/Retina Display
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
         this.container.appendChild(this.renderer.domElement);
 
         // Post-Processing Composer for White Map Layout/Outline
@@ -171,6 +172,7 @@ class MapApp {
         this.outlinePass.edgeGlow = 0.5;
         this.outlinePass.edgeThickness = 1.5;
         this.outlinePass.pulsePeriod = 0;
+        this.outlinePass.downSampleRatio = 2; // Optimization: downscale resolution for glow calculation
         this.outlinePass.visibleEdgeColor.set('#ffffff');
         this.outlinePass.hiddenEdgeColor.set('#ffffff');
         this.composer.addPass(this.outlinePass);
@@ -334,10 +336,8 @@ class MapApp {
             else shape.lineTo(x, -y);
         });
 
-        const geometry = new THREE.ExtrudeGeometry(shape, {
-            depth: 0.1,
-            bevelEnabled: false
-        });
+        // Optimasi: Gunakan ShapeGeometry datar biasa daripada ExtrudeGeometry untuk efisiensi RAM/CPU pada latar belakang dunia
+        const geometry = new THREE.ShapeGeometry(shape);
 
         // Transparent / Ghost styling
         const material = new THREE.MeshBasicMaterial({
@@ -394,36 +394,38 @@ class MapApp {
         const regionId = this.getRegionIdFromName(name);
         const islandData = this.islandsData.find(i => i.id === regionId);
 
-        const darkElegantBronze = 0x1A1500; // Sangat gelap (dark bronze/gold base)
-        const faintGoldGlow = 0x332600;
+        const premiumGoldBase = 0xD4AF37; // Warna Kuning Emas Premium (Metallic Gold)
+        const premiumGoldGlow = 0xB8860B; // Efek pendaran Emas (Dark Goldenrod)
 
         const material = new THREE.MeshPhongMaterial({
-            color: new THREE.Color(darkElegantBronze),
-            emissive: new THREE.Color(faintGoldGlow),
-            emissiveIntensity: 0.2, // Cahaya yang dipancarkan sangat tipis
-            shininess: 15,          // Berkurang jauh agar pantulan cahaya tidak menyilaukan
+            color: new THREE.Color(premiumGoldBase),
+            emissive: new THREE.Color(premiumGoldGlow),
+            emissiveIntensity: 0.4, // Cahaya pas agar tidak pudar
+            shininess: 60,          // Dibuat lebih mengkilap layaknya logam emas asli
             flatShading: false
         });
 
         const mesh = new THREE.Mesh(geometry, material);
         mesh.rotation.x = -Math.PI / 2; // Lay flat (Front face up, North away from camera)
 
-        // Create a thin border for each province
+        // Create a single bright border for each province
         const borderGeo = new THREE.BufferGeometry().setFromPoints(shape.getPoints());
         const borderMat = new THREE.LineBasicMaterial({
             color: 0xff003f, // Merah Terang
             transparent: true,
-            opacity: 0.4
+            opacity: 1 // Maksimal agar glow/shimmer terlihat mencolok
         });
         const borderLine = new THREE.Line(borderGeo, borderMat);
-        borderLine.position.z = 0.205; // Slightly above the extruded depth (0.2) to prevent z-fighting
+        borderLine.position.z = 0.205;
+
+        // Note: Ketebalan garis di WebGL sayangnya dikunci secara *hardcode* di 1px oleh arsitektur dasar GPU browser.
         mesh.add(borderLine);
 
-        // Store for shimmer animation
+        // Store for shimmer animation with White Color blending
         if (!this.borderMaterials) this.borderMaterials = [];
         this.borderMaterials.push({
             material: borderMat,
-            baseOpacity: 0.4,
+            baseOpacity: 0.8,
             phase: Math.random() * Math.PI * 2,
             speed: 3.0 + Math.random() * 2.0 // Efek loop shimmer lebih dinamis
         });
@@ -786,15 +788,26 @@ class MapApp {
     animate() {
         requestAnimationFrame(this.animate);
 
-        // Calculate raycast once per frame (60hz limit) instead of via raw mousemove (could be > 1000hz limit)
-        this.raycast();
+        // Optimization: Hanya cek Intersect raycast setiap 3 frame untuk hemat CPU dengan drastis di HP/Web lambat
+        this.frameCount = (this.frameCount || 0) + 1;
+        if (this.frameCount % 3 === 0) {
+            this.raycast();
+        }
 
-        // Animate Shimmering Red Borders
+        // Animate Shimmering Red Borders to White
         if (this.borderMaterials) {
             const time = performance.now() * 0.001;
+            const crimsonColor = new THREE.Color(0xff003f); // Base merah
+            const pureWhite = new THREE.Color(0xffffff);    // Shimmer putih
+
             this.borderMaterials.forEach(b => {
-                const shimmer = (Math.sin(time * b.speed + b.phase) + 1) * 0.5; // 0.0 to 1.0
-                b.material.opacity = b.baseOpacity + shimmer * 0.6; // Pulse opacity between base and fully bright
+                const shimmer = (Math.sin(time * b.speed + b.phase) + 1) * 0.5; // 0.0 to 1.0 (Sinusoidal)
+
+                // Animate Color Shimmer: Merah -> Putih -> Merah
+                b.material.color.lerpColors(crimsonColor, pureWhite, shimmer * 0.85); // 0.85 agar tidak sampai putih mutlak menyilaukan
+
+                // Sedikit denyut Opacity tambahan
+                b.material.opacity = b.baseOpacity + shimmer * 0.2;
             });
         }
 

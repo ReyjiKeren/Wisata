@@ -208,6 +208,10 @@ function updateUI(user) {
             if (headerAvatar) headerAvatar.src = avatarUrl;
             if (headerAvatarDashboard) headerAvatarDashboard.src = avatarUrl;
 
+            // Load & render wishlist from metadata
+            const wishlist = user.user_metadata?.wishlist || [];
+            renderWishlist(wishlist);
+
         } else {
             uiAuthContainer.classList.remove('hidden');
             uiDashboard.classList.add('hidden');
@@ -272,12 +276,140 @@ async function signInWithGoogle() {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: window.location.origin + window.location.pathname
+            // Callback ke link di mana user menekan tombol (menghindari duplikasi hash)
+            redirectTo: window.location.href.split('#')[0]
         }
     });
 
     if (error) {
         showToast(error.message, 'error');
+    }
+}
+
+// Wishlist Logic
+async function addToWishlist() {
+    if (!supabaseClient) return showToast('Supabase not configured.', 'error');
+
+    // Check session securely
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !session.user) {
+        showToast('Silakan Login atau Daftar dulu ya untuk simpan! 😊', 'error');
+        // Optionally redirect to login
+        if (uiAuthContainer && uiDashboard) {
+            uiAuthContainer.classList.remove('hidden');
+            uiDashboard.classList.add('hidden');
+
+            // Assume member section exists in DOM, trigger its view if it was hidden
+            const memberPanel = document.getElementById('member-section');
+            if (memberPanel) {
+                memberPanel.classList.remove('translate-y-full');
+            }
+            showLogin();
+        }
+        return;
+    }
+
+    const titleEl = document.getElementById('dest-detail-title');
+    const imgEl = document.getElementById('dest-detail-img');
+
+    if (!titleEl) return;
+    const destName = titleEl.innerText;
+    // Gunakan fallback gambar estetik jika img tidak tersedia
+    const destImage = imgEl ? imgEl.src : 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=400&auto=format&fit=crop';
+
+    showToast('Menyimpan ke Wishlist...', 'info');
+
+    // Current wishlist array
+    const currentList = session.user.user_metadata?.wishlist || [];
+
+    // Anti-duplicate check (mendukung string klasik atau object baru)
+    if (currentList.some(item => (typeof item === 'string' ? item : item.name) === destName)) {
+        return showToast(`Oops, ${destName} sudah ada di Wishlist kamu! ✌️`, 'info');
+    }
+
+    // Append Destination (Sekarang menyimpan Object untuk UI lebih kaya)
+    const newItem = { name: destName, image: destImage };
+    const newList = [...currentList, newItem];
+
+    // Update User Metadata in DB
+    const { data, error } = await supabaseClient.auth.updateUser({
+        data: { wishlist: newList }
+    });
+
+    if (error) {
+        showToast(error.message, 'error');
+    } else {
+        showToast(`${destName} berhasil ditambahkan ke Wishlist! 💖`, 'info');
+        renderWishlist(newList);
+    }
+}
+
+function renderWishlist(list) {
+    const section = document.getElementById('wishlist-section');
+    const container = document.getElementById('wishlist-container');
+    const countBadge = document.getElementById('wishlist-count');
+
+    // Sync dashboard numbers
+    if (countBadge) countBadge.innerText = list.length;
+
+    if (!section || !container) return;
+
+    if (list.length === 0) {
+        section.classList.add('hidden');
+        container.innerHTML = '';
+        return;
+    }
+
+    // Visually un-hide the UI section and render array into elements
+    section.classList.remove('hidden');
+    container.innerHTML = list.map(item => {
+        const itemName = typeof item === 'string' ? item : item.name;
+        // Gunakan gambar background jika ada, jika tidak pasang fallback yang cantik
+        const itemImg = typeof item === 'string' || !item.image ? 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=400&auto=format&fit=crop' : item.image;
+
+        return `
+            <div class="relative shrink-0 w-60 h-36 rounded-xl overflow-hidden group border border-brand-cyan/30 hover:border-brand-cyan hover:shadow-[0_0_20px_rgba(22,198,255,0.4)] transition-all cursor-pointer shadow-lg bg-brand-navy">
+                <img src="${itemImg}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="${itemName}">
+                <div class="absolute inset-0 bg-gradient-to-t from-brand-navy via-brand-navy/60 to-brand-navy/10 z-10 transition-opacity group-hover:opacity-90"></div>
+                <div class="absolute bottom-4 left-4 right-4 z-20 transform group-hover:-translate-y-1 transition-transform">
+                    <h4 class="text-white font-bold text-base truncate drop-shadow-md" title="${itemName}">${itemName}</h4>
+                    <div class="flex items-center gap-1.5 mt-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-4 h-4 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" /></svg>
+                        <span class="text-[10px] text-brand-cyan font-bold tracking-widest uppercase drop-shadow-md">Tersimpan</span>
+                    </div>
+                </div>
+                <!-- Tombol Hapus Wishlist -->
+                <button onclick="event.stopPropagation(); window.authParams.removeWishlist('${itemName.replace(/'/g, "\\'")}')" 
+                    title="Hapus dari wishlist"
+                    class="absolute top-2 right-2 z-30 opacity-0 group-hover:opacity-100 p-2 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-md transition-all shadow-lg transform -translate-y-2 group-hover:translate-y-0">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Fungsi Hapus Wishlist
+async function removeWishlist(itemName) {
+    if (!supabaseClient) return;
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !session.user) return;
+
+    showToast(`Menghapus ${itemName}...`, 'info');
+
+    const currentList = session.user.user_metadata?.wishlist || [];
+    // Filter out both string formats and object formats
+    const newList = currentList.filter(item => (typeof item === 'string' ? item : item.name) !== itemName);
+
+    const { data, error } = await supabaseClient.auth.updateUser({
+        data: { wishlist: newList }
+    });
+
+    if (error) {
+        showToast(error.message, 'error');
+    } else {
+        showToast(`${itemName} dihapus dari Wishlist! 🗑️`, 'info');
+        renderWishlist(newList);
     }
 }
 
@@ -292,11 +424,14 @@ window.authParams = {
     updateProfileName,
     showEditProfile,
     uploadAvatar,
-    fetchMembers
+    fetchMembers,
+    addToWishlist,
+    renderWishlist,
+    removeWishlist
 };
 
 async function fetchMembers() {
-    if (!supabaseClientClient || !uiAdminMemberList) return;
+    if (!supabaseClient || !uiAdminMemberList) return;
 
     uiAdminMemberList.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Loading...</td></tr>';
 
@@ -396,7 +531,7 @@ function showEditProfile() {
 
 // Update Profile Name
 async function updateProfileName() {
-    if (!supabaseClientClient) return;
+    if (!supabaseClient) return;
     const newName = inputDisplayName.value.trim();
 
     if (!newName) {
