@@ -256,7 +256,7 @@ function updateUI(user) {
 }
 
 // Listen to Auth State Changes
-if (supabase) {
+if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         updateUI(session?.user ?? null);
 

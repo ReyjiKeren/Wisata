@@ -154,28 +154,45 @@ class MapApp {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         // Batasi pixel ratio maksimal 1.25 untuk menghindari beratnya Post-Processing di HP/Retina Display
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
         this.container.appendChild(this.renderer.domElement);
 
-        // Post-Processing Composer for White Map Layout/Outline
-        this.composer = new THREE.EffectComposer(this.renderer);
+        // Post-Processing Composer for White Map Layout/Outline (Robust Check)
+        try {
+            const ComposerClass = window.EffectComposer || (typeof THREE !== 'undefined' ? THREE.EffectComposer : null);
+            const RenderPassClass = window.RenderPass || (typeof THREE !== 'undefined' ? THREE.RenderPass : null);
+            const OutlinePassClass = window.OutlinePass || (typeof THREE !== 'undefined' ? THREE.OutlinePass : null);
 
-        const renderPass = new THREE.RenderPass(this.scene, this.camera);
-        this.composer.addPass(renderPass);
+            if (ComposerClass && RenderPassClass) {
+                this.composer = new ComposerClass(this.renderer);
+                const renderPass = new RenderPassClass(this.scene, this.camera);
+                this.composer.addPass(renderPass);
 
-        this.outlinePass = new THREE.OutlinePass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            this.scene,
-            this.camera
-        );
-        this.outlinePass.edgeStrength = 4.0;
-        this.outlinePass.edgeGlow = 0.5;
-        this.outlinePass.edgeThickness = 1.5;
-        this.outlinePass.pulsePeriod = 0;
-        this.outlinePass.downSampleRatio = 2; // Optimization: downscale resolution for glow calculation
-        this.outlinePass.visibleEdgeColor.set('#ffffff');
-        this.outlinePass.hiddenEdgeColor.set('#ffffff');
-        this.composer.addPass(this.outlinePass);
+                if (OutlinePassClass) {
+                    this.outlinePass = new OutlinePassClass(
+                        new THREE.Vector2(window.innerWidth, window.innerHeight),
+                        this.scene,
+                        this.camera
+                    );
+                    this.outlinePass.edgeStrength = 4.0;
+                    this.outlinePass.edgeGlow = 0.5;
+                    this.outlinePass.edgeThickness = 1.5;
+                    this.outlinePass.visibleEdgeColor.set('#ffffff');
+                    this.outlinePass.hiddenEdgeColor.set('#ffffff');
+
+                    if (typeof this.outlinePass.downSampleRatio !== 'undefined') {
+                        this.outlinePass.downSampleRatio = 2;
+                    }
+                    this.composer.addPass(this.outlinePass);
+                }
+            } else {
+                console.warn("Post-processing libraries (EffectComposer/RenderPass) not found. Standard rendering active.");
+                this.composer = null;
+            }
+        } catch (err) {
+            console.error("Error setting up post-processing:", err);
+            this.composer = null;
+        }
 
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;

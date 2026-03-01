@@ -1,0 +1,21 @@
+11: <script src="https://cdn.tailwindcss.com"></script>
+12: <script>
+707: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+708: <script src="./Src/js/auth.js"></script>
+711: <script src="https://d3js.org/d3.v7.min.js"></script>
+713: <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+717: <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+718: <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+719: <script src="https://unpkg.com/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+720: <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+721: <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+722: <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+723: <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+724: <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/OutlinePass.js"></script>
+725: <script src="./Src/js/map.js"></script>
+728: <script>
+977: <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+980: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+982: <script src="./src/js/auth.js"></script>
+985: <script type="module" src="./Src/js/chatbot.js"></script>
+988: <script>
