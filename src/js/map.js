@@ -428,7 +428,7 @@ class MapApp {
         // Create a thick-looking border using 5 layered lines with ultra-tight offsets (0.01)
         const borderGeo = new THREE.BufferGeometry().setFromPoints(shape.getPoints());
         const borderMat = new THREE.LineBasicMaterial({
-            color: 0xff003f, // Merah Terang
+            color: 0x16C6FF, // Biru Cyan Terang (Premium)
             transparent: true,
             opacity: 1.0
         });
@@ -819,17 +819,17 @@ class MapApp {
             this.raycast();
         }
 
-        // Animate Shimmering Red Borders to White
+        // Animate Shimmering Cyan Borders to White
         if (this.borderMaterials) {
             const time = performance.now() * 0.001;
-            const crimsonColor = new THREE.Color(0xff003f); // Base merah
+            const cyanColor = new THREE.Color(0x16C6FF);   // Base biru cyan
             const pureWhite = new THREE.Color(0xffffff);    // Shimmer putih
 
             this.borderMaterials.forEach(b => {
                 const shimmer = (Math.sin(time * b.speed + b.phase) + 1) * 0.5; // 0.0 to 1.0 (Sinusoidal)
 
-                // Animate Color Shimmer: Merah -> Putih -> Merah
-                b.material.color.lerpColors(crimsonColor, pureWhite, shimmer * 0.85); // 0.85 agar tidak sampai putih mutlak menyilaukan
+                // Animate Color Shimmer: Biru -> Putih -> Biru
+                b.material.color.lerpColors(cyanColor, pureWhite, shimmer * 0.85); // 0.85 agar tidak sampai putih mutlak menyilaukan
 
                 // Sedikit denyut Opacity tambahan
                 b.material.opacity = b.baseOpacity + shimmer * 0.2;
